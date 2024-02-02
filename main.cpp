@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
             std::cout << data.toString(100) << std::endl;
 
             // Exit if at end of file (tag 80)
-            if (data.getTag()[0] == 0x80)
+            if (data.getTag() == 0x80)
             {
                 break;
             }

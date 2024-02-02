@@ -4,6 +4,8 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
+#include <type_traits>
 
 class MFERData
 {
@@ -13,22 +15,85 @@ public:
     static std::string headerString();
     std::string toString(int maxByteLength) const;
 
-    const std::vector<unsigned char> &getTag() const
+    const unsigned short &getTag() const
     {
         return tag;
     };
-    const std::vector<unsigned char> &getLength() const;
+    const unsigned long long &getLength() const;
     const std::vector<unsigned char> &getContents() const;
+
+    template<typename T>
+    const void setTag(T num) {
+        static_assert(std::is_integral<T>::value, "Function only accepts integral types.");
+        tag = static_cast<decltype(tag)>(num);
+    }
+    template<typename T>
+    const void setLength(T num) {
+        static_assert(std::is_integral<T>::value, "Function only accepts integral types.");
+        length = static_cast<decltype(length)>(num);
+    }
 
 private:
     void parseData(std::ifstream *data);
 
-    std::vector<unsigned char> tag;
-    std::vector<unsigned char> length;
+    unsigned short tag;
+    unsigned long long length;
     std::vector<unsigned char> contents;
 };
 
-int hexVectorToInt(const std::vector<unsigned char> &hexVector);
+template <typename T>
+T hexVectorToInt(const std::vector<unsigned char> &hexVector)
+{
+    static_assert(std::is_integral<T>::value, "Return type must be an integral type.");
+
+    T result = 0;
+    for (unsigned char byte : hexVector)
+    {
+        result = (result << 8) | byte;
+    }
+
+    return result;
+}
+
+template <typename T>
+std::vector<unsigned char> intToHexVector(T value)
+{
+    static_assert(std::is_integral<T>::value, "Input type must be an integral type.");
+
+    std::vector<unsigned char> hexVector;
+    bool leadingZero = true;
+
+    for (int i = (sizeof(T) - 1) * 8; i >= 0; i -= 8)
+    {
+        unsigned char byte = (value >> i) & 0xFF;
+        if (byte != 0 || !leadingZero)
+        {
+            hexVector.push_back(byte);
+            leadingZero = false;
+        }
+    }
+
+    // In case the value is 0, ensure the vector is not empty
+    if (hexVector.empty())
+    {
+        hexVector.push_back(0);
+    }
+
+    return hexVector;
+}
+
+// Creates a string "AB CD 45 " from a list of bytes, for example
+inline std::string stringifyBytes(std::vector<unsigned char> bytes)
+{
+    std::ostringstream stream;
+    for (auto val : bytes)
+    {
+        stream << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
+    }
+    std::string string = stream.str();
+    string.pop_back();
+    return string;
+}
 
 // Byte tag enums, in order of documentation
 enum class MWF : unsigned short // Typically 1 byte. Channels can have assigned byte

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
+#include <type_traits>
 #include "MFERData.h"
 
 MFERData::MFERData(std::ifstream *data)
@@ -19,41 +20,26 @@ MFERData::MFERData(std::ifstream *data)
 
 std::string MFERData::headerString()
 {
-    return "| Tag    | Length      | Contents \n"
-           "|--------|-------------|------------>";
+    return "| Tag   | Length      | Contents \n"
+           "|-------|-------------|------------>";
 }
 
 std::string MFERData::toString(int maxByteLength) const
 {
-    std::ostringstream tagString;
-    for (auto val : tag)
-    {
-        tagString << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
-    }
-    tagString << std::string(6 - tag.size() * 3, ' ');
+    std::string tagString = stringifyBytes(intToHexVector<decltype(tag)>(tag));
+    std::string lengthString = stringifyBytes(intToHexVector<decltype(length)>(length));
+    std::string contentsString = stringifyBytes(contents);
 
-    std::ostringstream lengthString;
-    for (auto val : length)
+    if (contentsString.size() > maxByteLength)
     {
-        lengthString << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
+        contentsString = std::string("...");
     }
-    lengthString << std::string(12 - length.size() * 3, ' ');
-
-    std::ostringstream contentsString;
-    if (contents.size() <= maxByteLength)
-    {
-        for (auto val : contents)
-        {
-            contentsString << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
-        }
-    }
-    else
-    {
-        contentsString << "...";
+    if (length == 0x00) {
+        contentsString = std::string("End of file.");
     }
 
     std::ostringstream output;
-    output << "| " << tagString.str() << "| " << lengthString.str() << "| " << contentsString.str();
+    output << "| " << std::setw(5) << std::setfill(' ') << tagString << " | " << std::setw(11) << std::setfill(' ') << lengthString << " | " << contentsString;
     return output.str();
 }
 
@@ -66,14 +52,14 @@ void MFERData::parseData(std::ifstream *data)
     {
         if (!data->eof())
         {
-            throw std::runtime_error("Error reading tag from file.");
+            throw std::runtime_error("Error reading tag from file, end of file.");
         }
     }
 
     if (firstTagByte == 0x80)
     {
-        tag.push_back(firstTagByte);
-        length.push_back(0x00);
+        setTag(firstTagByte);
+        setLength(0x00);
         return;
     }
 
@@ -81,8 +67,6 @@ void MFERData::parseData(std::ifstream *data)
     {
         throw std::runtime_error("Encountered invalid tag (00), stopping read.");
     }
-
-    tag.push_back(firstTagByte);
 
     // Special case for tag 3F: read next byte as part of the tag
     if (firstTagByte == 0x3F)
@@ -92,7 +76,11 @@ void MFERData::parseData(std::ifstream *data)
         {
             std::cerr << "Error reading second byte of tag 3F." << std::endl;
         }
-        tag.push_back(secondTagByte);
+        setTag((firstTagByte << 8) + secondTagByte);
+    }
+    else
+    {
+        setTag(firstTagByte);
     }
 
     // Read Length
@@ -103,7 +91,7 @@ void MFERData::parseData(std::ifstream *data)
         {
             std::cerr << "Error reading length from file." << std::endl;
         }
-        length.push_back(lengthByte);
+        setLength(lengthByte);
     }
     else
     {
@@ -115,31 +103,19 @@ void MFERData::parseData(std::ifstream *data)
         }
 
         // Read length
-        int intLength = static_cast<int>(wordLength);
-        unsigned char bytes[intLength - 128];
-        if (!data->read(reinterpret_cast<char *>(bytes), sizeof(bytes)))
+        std::vector<unsigned char> bytes(wordLength - 128);
+        if (!data->read(reinterpret_cast<char *>(bytes.data()), bytes.size()))
         {
             std::cerr << "Error reading bytes from the file!" << std::endl;
         }
 
-        length.assign(bytes, bytes + sizeof(bytes));
+        setLength(hexVectorToInt<unsigned long long>(bytes));
     }
 
     // Read Contents
-    contents.resize(hexVectorToInt(length));
+    contents.resize(length);
     if (!data->read(reinterpret_cast<char *>(contents.data()), contents.size()))
     {
         std::cerr << "Error reading contents from file." << std::endl;
     }
-}
-
-int hexVectorToInt(const std::vector<unsigned char> &hexVector)
-{
-    int result = 0;
-    for (unsigned char byte : hexVector)
-    {
-        result = (result << 8) | byte;
-    }
-
-    return result;
 }
