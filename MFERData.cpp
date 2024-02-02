@@ -5,12 +5,15 @@
 #include <vector>
 #include <type_traits>
 #include "MFERData.h"
+#include "HexVector.h"
+#include "DataBlock.h"
 
-MFERData::MFERData(std::ifstream *data)
+MFERData::MFERData(DataBlock *dataBlock)
 {
     try
     {
-        parseData(data);
+        tag = dataBlock->pop_byte();
+        parseData(dataBlock);
     }
     catch (const std::runtime_error &e)
     {
@@ -34,7 +37,8 @@ std::string MFERData::toString(int maxByteLength) const
     {
         contentsString = std::string("...");
     }
-    if (length == 0x00) {
+    if (length == 0x00)
+    {
         contentsString = std::string("End of file.");
     }
 
@@ -43,79 +47,40 @@ std::string MFERData::toString(int maxByteLength) const
     return output.str();
 }
 
-void MFERData::parseData(std::ifstream *data)
+void MFERData::parseData(DataBlock *dataBlock)
 {
 
-    // Read Tag (first byte)
-    unsigned char firstTagByte;
-    if (!data->read(reinterpret_cast<char *>(&firstTagByte), sizeof(firstTagByte)))
+    if (tag == 0x80)
     {
-        if (!data->eof())
-        {
-            throw std::runtime_error("Error reading tag from file, end of file.");
-        }
-    }
-
-    if (firstTagByte == 0x80)
-    {
-        setTag(firstTagByte);
         setLength(0x00);
         return;
     }
 
-    if (firstTagByte == 0x00)
+    if (tag == 0x00)
     {
         throw std::runtime_error("Encountered invalid tag (00), stopping read.");
     }
 
     // Special case for tag 3F: read next byte as part of the tag
-    if (firstTagByte == 0x3F)
+    if (tag == 0x3F)
     {
-        unsigned char secondTagByte;
-        if (!data->read(reinterpret_cast<char *>(&secondTagByte), sizeof(secondTagByte)))
-        {
-            std::cerr << "Error reading second byte of tag 3F." << std::endl;
-        }
-        setTag((firstTagByte << 8) + secondTagByte);
-    }
-    else
-    {
-        setTag(firstTagByte);
+        setTag((tag << 8) + dataBlock->pop_byte());
     }
 
     // Read Length
-    if (firstTagByte != 0x1E)
+    if (tag != 0x1E)
     {
-        unsigned char lengthByte;
-        if (!data->read(reinterpret_cast<char *>(&lengthByte), sizeof(lengthByte)))
-        {
-            std::cerr << "Error reading length from file." << std::endl;
-        }
-        setLength(lengthByte);
+        setLength(dataBlock->pop_byte());
     }
     else
     {
         // Get word length
-        unsigned char wordLength;
-        if (!data->read(reinterpret_cast<char *>(&wordLength), sizeof(wordLength)))
-        {
-            std::cerr << "Error reading length from file." << std::endl;
-        }
+        unsigned char wordLength = dataBlock->pop_byte() - 128;
 
         // Read length
-        std::vector<unsigned char> bytes(wordLength - 128);
-        if (!data->read(reinterpret_cast<char *>(bytes.data()), bytes.size()))
-        {
-            std::cerr << "Error reading bytes from the file!" << std::endl;
-        }
-
-        setLength(hexVectorToInt<unsigned long long>(bytes));
+        setLength(dataBlock->pop_hex(wordLength));
     }
 
     // Read Contents
-    contents.resize(length);
-    if (!data->read(reinterpret_cast<char *>(contents.data()), contents.size()))
-    {
-        std::cerr << "Error reading contents from file." << std::endl;
-    }
+    contents = dataBlock->pop_front(length);
 }

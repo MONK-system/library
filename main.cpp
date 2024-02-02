@@ -21,17 +21,21 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    DataBlock dataBlock(&file);
+
+    file.close();
+
     std::vector<MFERData> dataCollection;
 
     // Print header
     std::cout << std::endl
               << MFERData::headerString() << std::endl;
 
-    while (file)
+    while (dataBlock.size() > 0)
     {
         try
         {
-            MFERData data = MFERData(&file);
+            MFERData data = MFERData(&dataBlock);
 
             // Add to collection
             dataCollection.push_back(data);
@@ -51,8 +55,6 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
-    file.close();
 
     return 0;
 }
