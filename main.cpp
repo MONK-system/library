@@ -54,10 +54,5 @@ int main(int argc, char *argv[])
 
     file.close();
 
-    // Output the data for verification
-    for (const auto &data : dataCollection)
-    {
-    }
-
     return 0;
 }
