@@ -7,6 +7,7 @@
 #include "MFERData.h"
 #include "HexVector.h"
 #include "DataBlock.h"
+#include "MFERDataCollection.h"
 
 MFERData::MFERData(DataBlock *dataBlock)
 {
@@ -14,37 +15,15 @@ MFERData::MFERData(DataBlock *dataBlock)
     {
         tag = dataBlock->pop_byte();
         parseData(dataBlock);
+        if (tag >= 0x3F00 && tag <= 0x3F11)
+        {
+            dataCollection = parseMFERDataCollection(contents);
+        }
     }
     catch (const std::runtime_error &e)
     {
         throw std::runtime_error("Constructor failed: " + std::string(e.what()));
     }
-}
-
-std::string MFERData::headerString()
-{
-    return "| Tag   | Length      | Contents \n"
-           "|-------|-------------|------------>";
-}
-
-std::string MFERData::toString(int maxByteLength) const
-{
-    std::string tagString = stringifyBytes(intToHexVector<decltype(tag)>(tag));
-    std::string lengthString = stringifyBytes(intToHexVector<decltype(length)>(length));
-    std::string contentsString = stringifyBytes(contents);
-
-    if (contentsString.size() > maxByteLength)
-    {
-        contentsString = std::string("...");
-    }
-    if (length == 0x00)
-    {
-        contentsString = std::string("End of file.");
-    }
-
-    std::ostringstream output;
-    output << "| " << std::setw(5) << std::setfill(' ') << tagString << " | " << std::setw(11) << std::setfill(' ') << lengthString << " | " << contentsString;
-    return output.str();
 }
 
 void MFERData::parseData(DataBlock *dataBlock)
@@ -83,4 +62,36 @@ void MFERData::parseData(DataBlock *dataBlock)
 
     // Read Contents
     contents = dataBlock->pop_front(length);
+}
+std::string MFERData::toString(int maxByteLength, std::string left) const
+{
+    std::string tagString = stringifyBytes(intToHexVector<decltype(tag)>(tag));
+    std::string lengthString = stringifyBytes(intToHexVector<decltype(length)>(length));
+    std::ostringstream contentsStream;
+
+    if (dataCollection.size() > 0)
+    {
+        std::ostringstream contentLeft;
+        contentLeft << left << spacerString();
+        contentsStream << contentsString(dataCollection, maxByteLength, contentLeft.str());
+    }
+    else
+    {
+        if (length == 0x00)
+        {
+            contentsStream << std::string("| End of file.");
+        }
+        else if (contents.size() > maxByteLength)
+        {
+            contentsStream << std::string("| ...");
+        }
+        else
+        {
+            contentsStream << "| " << stringifyBytes(contents);
+        }
+    }
+
+    std::ostringstream output;
+    output << left << "| " << std::setw(5) << std::setfill(' ') << tagString << " | " << std::setw(11) << std::setfill(' ') << lengthString << " " << contentsStream.str();
+    return output.str();
 }

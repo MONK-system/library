@@ -1,15 +1,21 @@
 #ifndef MFERDATA_H
 #define MFERDATA_H
 
+#include <memory>
 #include "DataBlock.h"
+#include "MFERDataCollection.h"
+
+class MFERDataCollection;
 
 class MFERData
 {
 public:
     MFERData(DataBlock *dataBlock);
 
-    static std::string headerString();
-    std::string toString(int maxByteLength) const;
+    static inline std::string headerString() { return "| Tag   | Length      | Contents"; }
+    static inline std::string sectionString() { return "|-------|-------------|----------->"; }
+    static inline std::string spacerString() { return "|       |             "; }
+    std::string toString(int maxByteLength, std::string left) const;
 
     const unsigned short &getTag() const
     {
@@ -37,6 +43,7 @@ private:
     unsigned short tag;
     unsigned long long length;
     std::vector<unsigned char> contents;
+    std::vector<MFERData> dataCollection;
 };
 
 // Byte tag enums, in order of documentation

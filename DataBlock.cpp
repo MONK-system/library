@@ -2,28 +2,10 @@
 #include "DataBlock.h"
 #include "HexVector.h"
 
-DataBlock::DataBlock(std::vector<unsigned char> vectorData)
+DataBlock::DataBlock(std::vector<unsigned char> dataVector)
 {
     // Transfer data to deque
-    data.insert(data.end(), vectorData.begin(), vectorData.end());
-}
-
-DataBlock::DataBlock(std::ifstream *file)
-{
-    // Read file length
-    file->seekg(0, std::ios::end);
-    unsigned long long length = file->tellg();
-    file->seekg(0, std::ios::beg);
-
-    // Assign bytes to vector
-    std::vector<unsigned char> vectorData(length);
-    if (!file->read(reinterpret_cast<char *>(vectorData.data()), vectorData.size()))
-    {
-        throw std::runtime_error("Error reading file.");
-    }
-
-    // Transfer data to deque
-    data.insert(data.end(), vectorData.begin(), vectorData.end());
+    data.insert(data.end(), dataVector.begin(), dataVector.end());
 }
 
 std::vector<unsigned char> DataBlock::pop_front(unsigned long long num)

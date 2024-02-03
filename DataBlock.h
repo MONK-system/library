@@ -8,8 +8,7 @@
 class DataBlock
 {
 public:
-    DataBlock(std::vector<unsigned char> vectorData);
-    DataBlock(std::ifstream *file);
+    DataBlock(std::vector<unsigned char> dataVector);
 
     size_t size() const;
     std::vector<unsigned char> pop_front(unsigned long long num = 1);
