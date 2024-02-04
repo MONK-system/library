@@ -1,14 +1,14 @@
-#ifndef DATABLOCK_H
-#define DATABLOCK_H
+#ifndef DATASTACK_H
+#define DATASTACK_H
 
 #include <fstream>
 #include <vector>
 #include <deque>
 
-class DataBlock
+class DataStack
 {
 public:
-    DataBlock(std::vector<unsigned char> dataVector);
+    DataStack(std::vector<unsigned char> dataVector);
 
     size_t size() const;
     std::vector<unsigned char> pop_front(unsigned long long num = 1);

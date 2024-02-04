@@ -2,7 +2,7 @@
 #define MFERDATA_H
 
 #include <memory>
-#include "DataBlock.h"
+#include "DataStack.h"
 #include "MFERDataCollection.h"
 
 class MFERDataCollection;
@@ -10,7 +10,7 @@ class MFERDataCollection;
 class MFERData
 {
 public:
-    MFERData(DataBlock *dataBlock);
+    MFERData(DataStack *dataStack);
 
     static inline std::string headerString() { return "| Tag   | Length      | Contents"; }
     static inline std::string sectionString() { return "|-------|-------------|----------->"; }
@@ -38,7 +38,7 @@ public:
     }
 
 private:
-    void parseData(DataBlock *data);
+    void parseData(DataStack *data);
 
     unsigned short tag;
     unsigned long long length;

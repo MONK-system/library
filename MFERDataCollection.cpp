@@ -14,7 +14,7 @@ std::string MFERDataCollection::toString(int maxByteLength) const
 
 std::vector<MFERData> parseMFERDataCollection(std::vector<unsigned char> dataVector)
 {
-    DataBlock dataBlock(dataVector);
+    DataStack dataBlock(dataVector);
     std::vector<MFERData> collection;
 
     while (dataBlock.size() > 0)

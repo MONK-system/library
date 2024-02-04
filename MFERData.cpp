@@ -6,15 +6,15 @@
 #include <type_traits>
 #include "MFERData.h"
 #include "HexVector.h"
-#include "DataBlock.h"
+#include "DataStack.h"
 #include "MFERDataCollection.h"
 
-MFERData::MFERData(DataBlock *dataBlock)
+MFERData::MFERData(DataStack *dataStack)
 {
     try
     {
-        tag = dataBlock->pop_byte();
-        parseData(dataBlock);
+        tag = dataStack->pop_byte();
+        parseData(dataStack);
         if (tag >= 0x3F00 && tag <= 0x3F11)
         {
             dataCollection = parseMFERDataCollection(contents);
@@ -26,7 +26,7 @@ MFERData::MFERData(DataBlock *dataBlock)
     }
 }
 
-void MFERData::parseData(DataBlock *dataBlock)
+void MFERData::parseData(DataStack *dataStack)
 {
 
     if (tag == 0x80)
@@ -43,25 +43,25 @@ void MFERData::parseData(DataBlock *dataBlock)
     // Special case for tag 3F: read next byte as part of the tag
     if (tag == 0x3F)
     {
-        setTag((tag << 8) + dataBlock->pop_byte());
+        setTag((tag << 8) + dataStack->pop_byte());
     }
 
     // Read Length
     if (tag != 0x1E)
     {
-        setLength(dataBlock->pop_byte());
+        setLength(dataStack->pop_byte());
     }
     else
     {
         // Get word length
-        unsigned char wordLength = dataBlock->pop_byte() - 128;
+        unsigned char wordLength = dataStack->pop_byte() - 128;
 
         // Read length
-        setLength(dataBlock->pop_hex(wordLength));
+        setLength(dataStack->pop_hex(wordLength));
     }
 
     // Read Contents
-    contents = dataBlock->pop_front(length);
+    contents = dataStack->pop_front(length);
 }
 std::string MFERData::toString(int maxByteLength, std::string left) const
 {

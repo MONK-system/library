@@ -1,14 +1,14 @@
 #include <iostream>
-#include "DataBlock.h"
+#include "DataStack.h"
 #include "HexVector.h"
 
-DataBlock::DataBlock(std::vector<unsigned char> dataVector)
+DataStack::DataStack(std::vector<unsigned char> dataVector)
 {
     // Transfer data to deque
     data.insert(data.end(), dataVector.begin(), dataVector.end());
 }
 
-std::vector<unsigned char> DataBlock::pop_front(unsigned long long num)
+std::vector<unsigned char> DataStack::pop_front(unsigned long long num)
 {
     if (data.size() < num)
     {
@@ -23,17 +23,17 @@ std::vector<unsigned char> DataBlock::pop_front(unsigned long long num)
     return hexVector;
 }
 
-unsigned long long DataBlock::pop_hex(unsigned char num)
+unsigned long long DataStack::pop_hex(unsigned char num)
 {
     return hexVectorToInt<unsigned long long>(pop_front(num));
 }
 
-unsigned char DataBlock::pop_byte()
+unsigned char DataStack::pop_byte()
 {
     return hexVectorToInt<unsigned char>(pop_front());
 }
 
-size_t DataBlock::size() const
+size_t DataStack::size() const
 {
     return data.size();
 }
