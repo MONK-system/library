@@ -9,89 +9,129 @@
 #include "DataStack.h"
 #include "MFERDataCollection.h"
 
+int MFERData::maxByteLength = 100;
+
+std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
+{
+    unsigned char byte = dataStack->pop_byte();
+
+    switch (byte)
+    {
+    case PRE::tag:
+        return std::make_unique<PRE>(dataStack);
+    case BLE::tag:
+        return std::make_unique<BLE>(dataStack);
+    case TXC::tag:
+        return std::make_unique<TXC>(dataStack);
+    case MAN::tag:
+        return std::make_unique<MAN>(dataStack);
+    case WFM::tag:
+        return std::make_unique<WFM>(dataStack);
+    case TIM::tag:
+        return std::make_unique<TIM>(dataStack);
+    case PID::tag:
+        return std::make_unique<PID>(dataStack);
+    case PNM::tag:
+        return std::make_unique<PNM>(dataStack);
+    case AGE::tag:
+        return std::make_unique<AGE>(dataStack);
+    case SEX::tag:
+        return std::make_unique<SEX>(dataStack);
+    case IVL::tag:
+        return std::make_unique<IVL>(dataStack);
+    case EVT::tag:
+        return std::make_unique<EVT>(dataStack);
+    case SEQ::tag:
+        return std::make_unique<SEQ>(dataStack);
+    case CHN::tag:
+        return std::make_unique<CHN>(dataStack);
+    case NUL::tag:
+        return std::make_unique<NUL>(dataStack);
+    case ATT::tag:
+        return std::make_unique<ATT>(dataStack);
+    case WAV::tag:
+        return std::make_unique<WAV>(dataStack);
+    case END::tag:
+        return std::make_unique<END>(dataStack);
+    case LDN::tag:
+        return std::make_unique<LDN>(dataStack);
+    case DTP::tag:
+        return std::make_unique<DTP>(dataStack);
+    case BLK::tag:
+        return std::make_unique<BLK>(dataStack);
+    case SEN::tag:
+        return std::make_unique<SEN>(dataStack);
+    default:
+        throw std::invalid_argument("Invalid tag (int): " + (int)byte);
+    }
+}
+
 MFERData::MFERData(DataStack *dataStack)
 {
-    try
-    {
-        tag = dataStack->pop_byte();
-        parseData(dataStack);
-        if (tag >= 0x3F00 && tag <= 0x3F11)
-        {
-            dataCollection = parseMFERDataCollection(contents);
-        }
-    }
-    catch (const std::runtime_error &e)
-    {
-        throw std::runtime_error("Constructor failed: " + std::string(e.what()));
-    }
-}
-
-void MFERData::parseData(DataStack *dataStack)
-{
-
-    if (tag == 0x80)
-    {
-        setLength(0x00);
-        return;
-    }
-
-    if (tag == 0x00)
-    {
-        throw std::runtime_error("Encountered invalid tag (00), stopping read.");
-    }
-
-    // Special case for tag 3F: read next byte as part of the tag
-    if (tag == 0x3F)
-    {
-        setTag((tag << 8) + dataStack->pop_byte());
-    }
-
-    // Read Length
-    if (tag != 0x1E)
-    {
-        setLength(dataStack->pop_byte());
-    }
-    else
-    {
-        // Get word length
-        unsigned char wordLength = dataStack->pop_byte() - 128;
-
-        // Read length
-        setLength(dataStack->pop_hex(wordLength));
-    }
-
-    // Read Contents
+    length = dataStack->pop_byte();
     contents = dataStack->pop_front(length);
 }
-std::string MFERData::toString(int maxByteLength, std::string left) const
-{
-    std::string tagString = stringifyBytes(intToHexVector<decltype(tag)>(tag));
-    std::string lengthString = stringifyBytes(intToHexVector<decltype(length)>(length));
-    std::ostringstream contentsStream;
 
-    if (dataCollection.size() > 0)
+std::string MFERData::toString(std::string left) const
+{
+    std::string tagStr = tagString();
+    std::string lengthStr = lengthString();
+    std::string contentsStr = contentsString(left);
+
+    std::ostringstream output;
+    output << left << "| " << std::setw(5) << std::setfill(' ') << tagStr << " | " << std::setw(11) << std::setfill(' ') << lengthStr << " " << contentsStr;
+    return output.str();
+}
+
+std::string MFERData::contentsString(std::string left) const
+{
+    std::ostringstream stream;
+    if (contents.size() > maxByteLength)
     {
-        std::ostringstream contentLeft;
-        contentLeft << left << spacerString();
-        contentsStream << contentsString(dataCollection, maxByteLength, contentLeft.str());
+        stream << std::string("| ...");
     }
     else
     {
-        if (length == 0x00)
-        {
-            contentsStream << std::string("| End of file.");
-        }
-        else if (contents.size() > maxByteLength)
-        {
-            contentsStream << std::string("| ...");
-        }
-        else
-        {
-            contentsStream << "| " << stringifyBytes(contents);
-        }
+        stream << "| " << stringifyBytes(contents);
     }
+    return stream.str();
+}
 
-    std::ostringstream output;
-    output << left << "| " << std::setw(5) << std::setfill(' ') << tagString << " | " << std::setw(11) << std::setfill(' ') << lengthString << " " << contentsStream.str();
-    return output.str();
+ATT::ATT(DataStack *dataStack)
+{
+    channel = dataStack->pop_byte();
+    length = dataStack->pop_byte();
+    contents = dataStack->pop_front(length);
+    attributes = parseMFERDataCollection(contents);
+}
+
+std::string ATT::contentsString(std::string left) const
+{
+    std::ostringstream stream;
+    stream << headerString() << "\n"
+           << left << spacerString() << sectionString();
+    std::ostringstream leftStream;
+    leftStream << left << spacerString();
+    for (const auto &data : attributes)
+    {
+        stream << "\n" << left << data->toString(leftStream.str());
+    }
+    return stream.str();
+}
+
+WAV::WAV(DataStack *dataStack)
+{
+    wordLength = dataStack->pop_byte();
+    length = dataStack->pop_bytes(4);
+    contents = dataStack->pop_front(length);
+}
+
+END::END(DataStack *dataStack)
+{
+    length = 0x00;
+}
+
+std::string END::contentsString(std::string left) const
+{
+    return "| End of file.";
 }

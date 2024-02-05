@@ -23,7 +23,7 @@ std::vector<unsigned char> DataStack::pop_front(unsigned long long num)
     return hexVector;
 }
 
-unsigned long long DataStack::pop_hex(unsigned char num)
+unsigned long long DataStack::pop_bytes(unsigned char num)
 {
     return hexVectorToInt<unsigned long long>(pop_front(num));
 }
@@ -31,6 +31,11 @@ unsigned long long DataStack::pop_hex(unsigned char num)
 unsigned char DataStack::pop_byte()
 {
     return hexVectorToInt<unsigned char>(pop_front());
+}
+
+unsigned char DataStack::read_byte() const
+{
+    return data.front();
 }
 
 size_t DataStack::size() const

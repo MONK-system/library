@@ -1,3 +1,4 @@
+#include <iostream>
 #include <sstream>
 #include "MFERDataCollection.h"
 #include "MFERData.h"
@@ -9,25 +10,28 @@ MFERDataCollection::MFERDataCollection(std::vector<unsigned char> dataVector)
 
 std::string MFERDataCollection::toString(int maxByteLength) const
 {
-    return contentsString(dataCollection, maxByteLength, "");
+    MFERData::maxByteLength = maxByteLength;
+    return collectionToString(&dataCollection, "");
 }
 
-std::vector<MFERData> parseMFERDataCollection(std::vector<unsigned char> dataVector)
+std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsigned char> dataVector)
 {
     DataStack dataBlock(dataVector);
-    std::vector<MFERData> collection;
+    std::vector<std::unique_ptr<MFERData>> collection;
 
     while (dataBlock.size() > 0)
     {
         try
         {
-            MFERData data = MFERData(&dataBlock);
+            std::unique_ptr<MFERData> data = parseMFERData(&dataBlock);
+
+            std::cout << data->toString("") << std::endl;
 
             // Add to collection
-            collection.push_back(data);
+            collection.push_back(std::move(data));
 
             // Exit if at end of file (tag 80)
-            if (data.getTag() == 0x80)
+            if (dataBlock.size() <= 0)
             {
                 break;
             }
@@ -40,15 +44,25 @@ std::vector<MFERData> parseMFERDataCollection(std::vector<unsigned char> dataVec
     return collection;
 }
 
-std::string contentsString(const std::vector<MFERData> collection, int maxByteLength, std::string left)
+std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left)
 {
     std::ostringstream stream;
     stream << MFERData::headerString() << "\n"
            << left << MFERData::sectionString();
-    for (MFERData data : collection)
+
+    if (collection != nullptr)
     {
-        stream << "\n" << data.toString(maxByteLength, left);
+        for (const auto &data : *collection)
+        {
+            stream << "\n"
+                   << data->toString(left);
+        }
     }
-    stream.seekp(-1, std::ios_base::end);
+
+    if (stream.tellp() > 0)
+    {
+        stream.seekp(-1, std::ios_base::end);
+    }
+
     return stream.str();
 }

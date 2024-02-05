@@ -12,8 +12,9 @@ public:
 
     size_t size() const;
     std::vector<unsigned char> pop_front(unsigned long long num = 1);
-    unsigned long long pop_hex(unsigned char num);
+    unsigned long long pop_bytes(unsigned char num);
     unsigned char pop_byte();
+    unsigned char read_byte() const;
 
 private:
     std::deque<unsigned char> data;

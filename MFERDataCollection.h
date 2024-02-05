@@ -17,10 +17,10 @@ public:
     std::string toString(int maxByteLength = 100) const;
 
 private:
-    std::vector<MFERData> dataCollection;
+    std::vector<std::unique_ptr<MFERData>> dataCollection;
 };
 
-std::string contentsString(const std::vector<MFERData> collection, int maxByteLength, std::string left);
-std::vector<MFERData> parseMFERDataCollection(std::vector<unsigned char> dataVector);
+std::string collectionToString(const std::vector<std::unique_ptr<MFERData>>* collection, std::string left);
+std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsigned char> dataVector);
 
 #endif

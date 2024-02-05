@@ -4,32 +4,27 @@
 #include <memory>
 #include "DataStack.h"
 #include "MFERDataCollection.h"
+#include "HexVector.h"
 
 class MFERDataCollection;
 
 class MFERData
 {
 public:
+    MFERData() = default;
     MFERData(DataStack *dataStack);
+
+    static int maxByteLength;
 
     static inline std::string headerString() { return "| Tag   | Length      | Contents"; }
     static inline std::string sectionString() { return "|-------|-------------|----------->"; }
     static inline std::string spacerString() { return "|       |             "; }
-    std::string toString(int maxByteLength, std::string left) const;
+    std::string toString(std::string left) const;
 
-    const unsigned short &getTag() const
-    {
-        return tag;
-    };
+    virtual unsigned char getTag() const { return 0x00; };
     const unsigned long long &getLength() const;
     const std::vector<unsigned char> &getContents() const;
 
-    template <typename T>
-    const void setTag(T num)
-    {
-        static_assert(std::is_integral<T>::value, "Function only accepts integral types.");
-        tag = static_cast<decltype(tag)>(num);
-    }
     template <typename T>
     const void setLength(T num)
     {
@@ -37,100 +32,202 @@ public:
         length = static_cast<decltype(length)>(num);
     }
 
-private:
-    void parseData(DataStack *data);
-
-    unsigned short tag;
+protected:
     unsigned long long length;
     std::vector<unsigned char> contents;
-    std::vector<MFERData> dataCollection;
+
+    inline std::string tagString() const { return stringifyBytes(intToHexVector<decltype(getTag())>(getTag())); };
+    inline std::string lengthString() const { return stringifyBytes(intToHexVector<decltype(length)>(length)); };
+    virtual std::string contentsString(std::string left) const;
 };
 
-// Byte tag enums, in order of documentation
-enum class MWF : unsigned short // Typically 1 byte. Channels can have assigned byte
+std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack);
+
+class PRE : public MFERData // Preamble
 {
-    PRE = 0x40, // Preamble
-    BLE = 0x01, // Byte order
-    TXC = 0x0A, // Character code
-    MAN = 0x17, // Model information
-    WFM = 0x08, // Type of waveform
-    TIM = 0x85, // Measurement time
-    PID = 0x82, // Patient ID
-    // TXC
-    PNM = 0x81, // Patient name
-    // TXC
-    AGE = 0x83, // Patient age
-    SEX = 0x84, // Patient sex/gender
-    IVL = 0x0B, // Sampling interval
-    EVT = 0x41, // Event (NIBP data)
-    // More EVT
-    SEQ = 0x06, // Number of sequences
-    CHN = 0x05, // Number of channels
-    NUL = 0x12, // NULL value (0x8000)
-
-    ATT = 0x3F, // A channel, next byte in file specifies number
-    // (Documentation specifies 0x00 is Channel 1, 0x10 is 16 and 0x11 is 17? File starts 0x00 and upwards)
-    ATT_00 = 0x3F00, // Channel 1
-    ATT_01 = 0x3F01, // Channel 2
-    ATT_02 = 0x3F02, // Channel 3
-    ATT_03 = 0x3F03, // Channel 4
-    ATT_04 = 0x3F04, // Channel 5
-    ATT_05 = 0x3F05, // Channel 6
-    ATT_06 = 0x3F06, // Channel 7
-    ATT_07 = 0x3F07, // Channel 8
-    ATT_08 = 0x3F08, // Channel 9
-    ATT_09 = 0x3F09, // Channel 10
-    ATT_0A = 0x3F0A, // Channel 11
-    ATT_0B = 0x3F0B, // Channel 12
-    ATT_0C = 0x3F0C, // Channel 13
-    ATT_0D = 0x3F0D, // Channel 14
-    ATT_0E = 0x3F0E, // Channel 15
-    ATT_0F = 0x3F0F, // Channel 16
-    ATT_10 = 0x3F10, // Channel 17
-    ATT_11 = 0x3F11, // Channel 17?
-
-    WAV = 0x1E, // Waveform data
-    END = 0x80, // End of file
-
-    // Channel attributes:
-    LDN = 0x09, // Waveform attributes (Contains Lead)
-    DTP = 0x0A, // Data type
-    BLK = 0x04, // Data block length
-    // IVL
-    SEN = 0x0C, // Sampling resolution
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x40;
+    unsigned char getTag() const { return tag; }
 };
 
-// Lead (Tag of content of MWF_LDN) codes, in order of documentation.
-// Comments describe their meaning and integer value.
-enum class LDN : unsigned short // 2 bytes
+class BLE : public MFERData // Byte order
 {
-    STATUS = 0x1040,     // 4160 Status: When status information includes body position
-    BODY_POS = 0x1041,   // 4161 Body position: When body position is output as a continuous waveform
-    BODY_MVMNT = 0x1042, // 4162 Body movement
-    RESP = 0x1043,       // 4163 Respiration: When the respiration measurment method is not specified. Including snoring etc.
-    IRW = 0x00A0,        // 160 Impedance respiration waveform
-    BP = 0x008F,         // 143 Blood pressure: When NIBP or another blood pressure measurement is not specified
-    SPO2 = 0x00AF,       // 175 SpO₂
-    ECG1 = 0x1046,       // 4166 ECG1
-    ECG2 = 0x1047,       // 4167 ECG2
-    ECG3 = 0x1048,       // 4168 ECG3
-    ECG4 = 0x1049,       // 4169 ECG4: Used when the lead name is not clear
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x01;
+    unsigned char getTag() const { return tag; }
 };
 
-// Data Type (Tag of content of MWF_DTP field) codes in order of documentation.
-// (OF NOTE, "16 bit signed integer 0 to 65535" has been named Int_16_U, aka "unsigned")
-enum class DTP : unsigned char // 1 byte
+class TXC : public MFERData // Character code
 {
-    INT_16_S = 0x00,  // 16 bit signed integer -32768 to 32767
-    INT_16_U = 0x01,  // 16 bit signed integer 0 to 65535 (documented as signed)
-    INT_32_S = 0x02,  // 32 bit signed integer
-    INT_8_U = 0x03,   // 8 bit unsigned integer
-    STATUS_16 = 0x04, // 16 bit status field
-    INT_8_S = 0x05,   // 8 bit signed integer
-    INT_32_U = 0x06,  // 32 bit unsigned integer
-    FLOAT_32 = 0x07,  // 32 bit single precision floating point number
-    FLOAT_64 = 0x08,  // 64 bit single precision floating point number
-    AHA_8 = 0x09,     // 8 bit AHA compression
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x03;
+    unsigned char getTag() const { return tag; }
+};
+
+class MAN : public MFERData // Model information
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x17;
+    unsigned char getTag() const { return tag; }
+};
+
+class WFM : public MFERData // Type of waveform
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x08;
+    unsigned char getTag() const { return tag; }
+};
+
+class TIM : public MFERData // Measurement time
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x85;
+    unsigned char getTag() const { return tag; }
+};
+
+class PID : public MFERData // Patient ID
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x82;
+    unsigned char getTag() const { return tag; }
+};
+
+class PNM : public MFERData // Patient name
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x81;
+    unsigned char getTag() const { return tag; }
+};
+
+class AGE : public MFERData // Patient age
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x83;
+    unsigned char getTag() const { return tag; }
+};
+
+class SEX : public MFERData // Patient sex/gender
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x84;
+    unsigned char getTag() const { return tag; }
+};
+
+class IVL : public MFERData // Sampling interval
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x0B;
+    unsigned char getTag() const { return tag; }
+};
+
+class EVT : public MFERData // Event (NIBP data)
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x41;
+    unsigned char getTag() const { return tag; }
+};
+
+class SEQ : public MFERData // Number of sequences
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x06;
+    unsigned char getTag() const { return tag; }
+};
+
+class CHN : public MFERData // Number of channels
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x05;
+    unsigned char getTag() const { return tag; }
+};
+
+class NUL : public MFERData // NULL value (0x8000)
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x12;
+    unsigned char getTag() const { return tag; }
+};
+
+class ATT : public MFERData // A channel, next byte in file specifies number
+{
+public:
+    static const unsigned char tag = 0x3F;
+    unsigned char getTag() const { return tag; }
+    ATT(DataStack *dataStack);
+
+private:
+    unsigned char channel;
+    std::vector<std::unique_ptr<MFERData>> attributes;
+    std::string contentsString(std::string left) const;
+};
+
+class WAV : public MFERData // Waveform data
+{
+public:
+    static const unsigned char tag = 0x1E;
+    unsigned char getTag() const { return tag; }
+    WAV(DataStack *dataStack);
+
+private:
+    unsigned char wordLength;
+};
+
+class END : public MFERData // End of file
+{
+public:
+    static const unsigned char tag = 0x80;
+    unsigned char getTag() const { return tag; }
+    END(DataStack *dataStack);
+
+private:
+    std::string contentsString(std::string left) const;
+};
+
+class LDN : public MFERData // Waveform attributes (Contains Lead)
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x09;
+    unsigned char getTag() const { return tag; }
+};
+
+class DTP : public MFERData // Data type
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x0A;
+    unsigned char getTag() const { return tag; }
+};
+
+class BLK : public MFERData // Data block length
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x04;
+    unsigned char getTag() const { return tag; }
+};
+
+class SEN : public MFERData // Sampling resolution
+{
+public:
+    using MFERData::MFERData;
+    static const unsigned char tag = 0x0C;
+    unsigned char getTag() const { return tag; }
 };
 
 #endif // MFERDATA_H
