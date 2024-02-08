@@ -17,9 +17,23 @@ OBJECTS = $(SOURCES:.cpp=.o)
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS)
 
+# Specify remove command for Windows
+ifeq ($(OS),Windows_NT)
+    RM = cmd /C del /Q /F
+else
+    RM = rm -f
+endif
+
+# Define the executable output based on the OS
+ifeq ($(OS),Windows_NT)
+    TARGET = out.exe
+else
+    TARGET = out
+endif
+
 # A rule to clean up all generated files
 clean:
-	rm -f $(TARGET) $(OBJECTS)
+	-$(RM) $(TARGET) $(OBJECTS)
 
 # Dependency rules for objects; how to build from .cpp
 %.o: %.cpp
