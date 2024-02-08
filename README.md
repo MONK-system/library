@@ -24,7 +24,7 @@ Compiles the application to an "out" executable (out.exe on Windows).
 ./out -i {file}
 ```
 
-Runs the application with a given file.
+Runs the application with a given file. (```./out -i ./test-file.MWF``` for example)
 
 #### Other make rules
 ```
