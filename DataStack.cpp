@@ -15,7 +15,7 @@ std::vector<unsigned char> DataStack::pop_front(unsigned long long num)
         throw std::runtime_error("Error while reading data, number out of range.");
     }
     std::vector<unsigned char> hexVector;
-    for (int i = 0; i < num; ++i)
+    for (int i = 0; i < (int)num; ++i)
     {
         hexVector.push_back(data.front());
         data.pop_front();

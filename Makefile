@@ -4,8 +4,14 @@ CXX = g++
 # Compiler flags
 CXXFLAGS = -Wall -g
 
-# Define the executable output
-TARGET = out
+# Specify remove command for Windows and define the executable output based on the OS
+ifeq ($(OS),Windows_NT)
+    RM = cmd /C del /Q /F
+    TARGET = out.exe
+else
+    RM = rm -f
+    TARGET = out
+endif
 
 # List of source files
 SOURCES = main.cpp MFERData.cpp MFERDataCollection.cpp DataStack.cpp
@@ -16,20 +22,6 @@ OBJECTS = $(SOURCES:.cpp=.o)
 # The first target is the default, this is what is built when you just type 'make'
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS)
-
-# Specify remove command for Windows
-ifeq ($(OS),Windows_NT)
-    RM = cmd /C del /Q /F
-else
-    RM = rm -f
-endif
-
-# Define the executable output based on the OS
-ifeq ($(OS),Windows_NT)
-    TARGET = out.exe
-else
-    TARGET = out
-endif
 
 # A rule to clean up all generated files
 clean:
@@ -47,6 +39,9 @@ FILE ?= ./test-file.MWF
 test: $(TARGET)
 	./$(TARGET) -i $(FILE)
 
-# Declare 'clean' and 'test' as phony targets to ensure they're always executed,
+# Define a rule that compiles and then tests the application
+all: $(TARGET) test
+
+# Declare rules as phony targets to ensure they're always executed,
 # even if files with these names exist.
-.PHONY: clean test
+.PHONY: clean test all
