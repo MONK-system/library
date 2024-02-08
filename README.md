@@ -46,3 +46,9 @@ make all FILE={file}
 ```
 
 Compiles and runs the application with a given file, given changes to source code. By default, FILE = ./test-file.MWF. Mainly used for development.
+
+```
+make clean
+```
+
+Cleans compilation files (out and .o files).
