@@ -86,7 +86,7 @@ std::string MFERData::toString(std::string left) const
 std::string MFERData::contentsString(std::string left) const
 {
     std::ostringstream stream;
-    if (contents.size() > maxByteLength)
+    if (contents.size() > (size_t)maxByteLength)
     {
         stream << std::string("| ...");
     }
