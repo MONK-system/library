@@ -25,8 +25,6 @@ std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsig
         {
             std::unique_ptr<MFERData> data = parseMFERData(&dataBlock);
 
-            std::cout << data->toString("") << std::endl;
-
             // Add to collection
             collection.push_back(std::move(data));
 
