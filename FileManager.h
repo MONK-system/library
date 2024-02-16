@@ -12,6 +12,7 @@ public:
     FileManager(const std::string &outputFileName);
     void setOutputFormat(const std::string &format); // If future file formats are needed
     void writeLines(const std::vector<std::string> &lines);
+    void closeFile();
 
     static std::vector<unsigned char> readBinaryFile(const std::string &fileName);
 
