@@ -3,8 +3,7 @@
 #include <iomanip>
 #include <vector>
 #include "MFERDataCollection.h"
-
-std::vector<unsigned char> readHexFile(std::string fileName);
+#include "FileManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +19,7 @@ int main(int argc, char *argv[])
 
     try
     {
-        dataVector = readHexFile(filename);
+        dataVector = FileManager::readBinaryFile(filename);
     }
     catch (const std::runtime_error &e)
     {
@@ -33,29 +32,4 @@ int main(int argc, char *argv[])
     std::cout << std::endl << dataCollection.toString() << std::endl;
 
     return 0;
-}
-
-std::vector<unsigned char> readHexFile(std::string fileName)
-{
-    std::ifstream file(fileName, std::ios::binary);
-
-    if (!file.is_open())
-    {
-        throw std::runtime_error("Error opening file.");
-    }
-
-    // Read file length
-    file.seekg(0, std::ios::end);
-    unsigned long long length = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    // Assign bytes to vector
-    std::vector<unsigned char> dataVector(length);
-    if (!file.read(reinterpret_cast<char *>(dataVector.data()), dataVector.size()))
-    {
-        throw std::runtime_error("Error reading file.");
-    }
-    file.close();
-
-    return dataVector;
 }
