@@ -4,6 +4,7 @@
 #include <vector>
 #include "MFERDataCollection.h"
 #include "FileManager.h"
+#include "NihonKohdenData.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,21 +16,10 @@ int main(int argc, char *argv[])
 
     std::string filename = argv[2];
 
-    std::vector<unsigned char> dataVector;
+    NihonKohdenData nihonKohdenData(filename);
 
-    try
-    {
-        dataVector = FileManager::readBinaryFile(filename);
-    }
-    catch (const std::runtime_error &e)
-    {
-        std::cerr << "Failed to read file: " << e.what() << std::endl;
-        return 1;
-    }
-
-    MFERDataCollection dataCollection(dataVector);
-
-    std::cout << std::endl << dataCollection.toString() << std::endl;
+    nihonKohdenData.printData();
+    nihonKohdenData.printDataFields();
 
     return 0;
 }

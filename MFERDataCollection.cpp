@@ -5,13 +5,13 @@
 
 MFERDataCollection::MFERDataCollection(std::vector<unsigned char> dataVector)
 {
-    dataCollection = parseMFERDataCollection(dataVector);
+    mferDataVector = parseMFERDataCollection(dataVector);
 }
 
 std::string MFERDataCollection::toString(int maxByteLength) const
 {
     MFERData::maxByteLength = maxByteLength;
-    return collectionToString(&dataCollection, "");
+    return collectionToString(&mferDataVector, "");
 }
 
 std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsigned char> dataVector)

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <type_traits>
+#include <cmath>
 #include "MFERData.h"
 #include "HexVector.h"
 #include "DataStack.h"
@@ -97,12 +98,60 @@ std::string MFERData::contentsString(std::string left) const
     return stream.str();
 }
 
+std::vector<unsigned char> MFERData::getContents() const
+{
+    return contents;
+}
+
+EncodedString MFERData::getEncodedString(Encoding encoding) const
+{
+    return convertToEncodedString(contents, encoding);
+}
+
+Encoding MFERData::_getEncoding() const
+{
+    throw std::runtime_error("No encoding for this data type.");
+}
+
+float MFERData::_getSamplingInterval() const
+{
+    throw std::runtime_error("No sampling interval for this data type.");
+}
+
+float MFERData::_getSamplingResolution() const
+{
+    throw std::runtime_error("No sampling resolution for this data type.");
+}
+
+std::vector<std::unique_ptr<MFERData>> MFERData::_getAttributes() const
+{
+    throw std::runtime_error("No attributes for this data type.");
+}
+
+Encoding TXC::_getEncoding() const
+{
+    return stringToEncoding(convertToString(contents));
+};
+
+float IVL::_getSamplingInterval() const
+{
+    int base = contents[2];
+    int exponent = contents[1] - 256;
+    return base * std::pow(10, exponent);
+}
+
 ATT::ATT(DataStack *dataStack)
 {
     channel = dataStack->pop_byte();
     length = dataStack->pop_byte();
     contents = dataStack->pop_front(length);
     attributes = parseMFERDataCollection(contents);
+}
+
+std::vector<std::unique_ptr<MFERData>> ATT::_getAttributes() const
+{
+    std::vector<std::unique_ptr<MFERData>> collection = parseMFERDataCollection(contents);
+    return collection;
 }
 
 std::string ATT::contentsString(std::string left) const
@@ -114,9 +163,19 @@ std::string ATT::contentsString(std::string left) const
     leftStream << left << spacerString();
     for (const auto &data : attributes)
     {
-        stream << "\n" << left << data->toString(leftStream.str());
+        stream << "\n"
+               << left << data->toString(leftStream.str());
     }
     return stream.str();
+}
+
+float SEN::_getSamplingResolution() const
+{
+    DataStack dataStack(contents);
+    dataStack.pop_front();
+    int exponent = 256 - (int)dataStack.pop_byte();
+    int base = dataStack.pop_bytes(2);
+    return base * std::pow(10, exponent);
 }
 
 WAV::WAV(DataStack *dataStack)

@@ -14,7 +14,7 @@ else
 endif
 
 # List of source files
-SOURCES = main.cpp MFERData.cpp MFERDataCollection.cpp DataStack.cpp FileManager.cpp
+SOURCES = main.cpp MFERData.cpp MFERDataCollection.cpp DataStack.cpp FileManager.cpp NihonKohdenData.cpp
 
 # Object files are the .cpp files, but with .o extensions
 OBJECTS = $(SOURCES:.cpp=.o)

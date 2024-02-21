@@ -23,7 +23,7 @@ std::vector<unsigned char> DataStack::pop_front(unsigned long long num)
     return hexVector;
 }
 
-unsigned long long DataStack::pop_bytes(unsigned char num)
+unsigned long long DataStack::pop_bytes(unsigned long long num)
 {
     return hexVectorToInt<unsigned long long>(pop_front(num));
 }
@@ -42,3 +42,37 @@ size_t DataStack::size() const
 {
     return data.size();
 }
+
+template <typename T>
+T DataStack::pop_value(int size)
+{
+    try
+    {
+        std::vector<unsigned char> hexVector = pop_front(size);
+        return hexVectorToInt<T>(hexVector);
+    }
+    catch (const std::runtime_error &e)
+    {
+        throw e;
+    }
+}
+
+template <typename T>
+std::vector<T> DataStack::pop_values(int num, int size)
+{
+    std::vector<T> values;
+    for (int i = 0; i < (int)num; ++i)
+    {
+        try
+        {
+            values.push_back(pop_value<T>(size));
+        }
+        catch (const std::runtime_error &e)
+        {
+            throw e;
+        }
+    }
+    return values;
+}
+
+template std::vector<long long> DataStack::pop_values<long long>(int, int);

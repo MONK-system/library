@@ -37,7 +37,7 @@ void FileManager::closeFile()
     }
 }
 
-// Remember to properly close the file when done, which could be handled
+// Close the file when done, which could be handled
 // in the destructor if the file should remain open for the object's lifetime.
 FileManager::~FileManager()
 {
