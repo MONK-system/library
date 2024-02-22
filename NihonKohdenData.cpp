@@ -28,6 +28,7 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
             break;
         case TXC::tag:
             encoding = data->getEncoding();
+            break;
         case MAN::tag:
             fields.modelInfo = data->getEncodedString(encoding);
             break;
