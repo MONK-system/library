@@ -11,21 +11,21 @@
 #include <algorithm>
 #include <iostream>
 
-enum class ByteOrder : bool
+enum class ByteOrder
 {
-    BIG_ENDIAN,
-    LITTLE_ENDIAN
+    ENDIAN_BIG,
+    ENDIAN_LITTLE
 };
 
 template <typename T>
-T hexVectorToInt(const std::vector<unsigned char> hexVector, ByteOrder byteOrder = ByteOrder::BIG_ENDIAN)
+T hexVectorToInt(const std::vector<unsigned char> hexVector, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
 {
     static_assert(std::is_integral<T>::value, "Return type must be an integral type.");
 
-    if (byteOrder == ByteOrder::LITTLE_ENDIAN)
+    if (byteOrder == ByteOrder::ENDIAN_LITTLE)
     {
         std::vector<unsigned char> reversedHexVector(hexVector.rbegin(), hexVector.rend());
-        return hexVectorToInt<T>(reversedHexVector, ByteOrder::BIG_ENDIAN);
+        return hexVectorToInt<T>(reversedHexVector, ByteOrder::ENDIAN_BIG);
     }
     T result = 0;
     for (unsigned char byte : hexVector)

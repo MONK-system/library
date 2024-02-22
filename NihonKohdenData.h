@@ -119,7 +119,7 @@ public:
     struct DataFields
     {
         std::wstring preamble;
-        ByteOrder byteOrder = ByteOrder::LITTLE_ENDIAN;
+        ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
         EncodedString modelInfo;
         unsigned short longwaveformType; // Unsure of encoding
         std::string time;                // TODO: Implement time format

@@ -121,7 +121,7 @@ void NihonKohdenData::printData() const
 void NihonKohdenData::printDataFields() const
 {
     std::wcout << L"Preamble: " << fields.preamble << std::endl;
-    std::wcout << L"Byte Order: " << (fields.byteOrder == ByteOrder::LITTLE_ENDIAN ? L"Little Endian" : L"Big Endian") << std::endl;
+    std::wcout << L"Byte Order: " << (fields.byteOrder == ByteOrder::ENDIAN_LITTLE ? L"Little Endian" : L"Big Endian") << std::endl;
     std::wcout << L"Model Info: " << fields.modelInfo.str << std::endl;
     std::wcout << L"Longwaveform Type: " << fields.longwaveformType << std::endl;
     std::wcout << L"Patient ID: " << fields.patientID.str << std::endl;
