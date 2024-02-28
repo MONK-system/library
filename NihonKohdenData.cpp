@@ -59,10 +59,10 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
             // TODO: Implement event data
             break;
         case SEQ::tag:
-            fields.sequenceCount = hexVectorToInt<int>(data->getContents(), fields.byteOrder);
+            fields.sequenceCount = hexVectorToInt<uint16_t>(data->getContents(), fields.byteOrder);
             break;
         case CHN::tag:
-            fields.channelCount = (int)data->getContents()[0];
+            fields.channelCount = (uint8_t)data->getContents()[0];
             break;
         case NUL::tag:
             // null value
@@ -76,13 +76,13 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
                 switch (channelAttribute->getTag())
                 {
                 case LDN::tag:
-                    channel.waveformAttributes = static_cast<Lead>(hexVectorToInt<unsigned short>(channelAttribute->getContents(), fields.byteOrder));
+                    channel.waveformAttributes = static_cast<Lead>(hexVectorToInt<uint16_t>(channelAttribute->getContents(), fields.byteOrder));
                     break;
                 case DTP::tag:
                     channel.dataType = static_cast<DataType>(channelAttribute->getContents()[0]);
                     break;
                 case BLK::tag:
-                    channel.blockLength = hexVectorToInt<int>(channelAttribute->getContents(), fields.byteOrder);
+                    channel.blockLength = hexVectorToInt<uint32_t>(channelAttribute->getContents(), fields.byteOrder);
                     break;
                 case IVL::tag:
                     channel.samplingInterval = channelAttribute->getSamplingInterval();
@@ -98,8 +98,12 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
         case WAV::tag:
         {
             DataStack waveformDataStack(data->getContents());
+            int i = 0;
             for (auto &channel : fields.channels)
             {
+                i++;
+                std::cout << "Channel: " << i << " Waveform left: " << waveformDataStack.size() << "\n";
+                std::cout << "Channel: " << i << " number of data: " << channel.blockLength * fields.sequenceCount << "\n";
                 channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
             }
             break;
