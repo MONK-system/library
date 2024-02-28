@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <deque>
+#include "HexVector.h"
 
 class DataStack
 {
@@ -12,13 +13,18 @@ public:
 
     size_t size() const;
     std::vector<unsigned char> pop_front(unsigned long long num = 1);
-    unsigned long long pop_bytes(unsigned long long num);
+    template <typename T>
+    T pop_bytes(unsigned long long num);
     unsigned char pop_byte();
     unsigned char read_byte() const;
     template <typename T>
-    T pop_value(int size = sizeof(T));
+    T pop_value(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
     template <typename T>
-    std::vector<T> pop_values(int num, int size = sizeof(T));
+    std::vector<T> pop_values(int num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
+    template <typename T>
+    double pop_double(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
+    template <typename T>
+    std::vector<double> pop_doubles(int num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
 
 private:
     std::deque<unsigned char> data;

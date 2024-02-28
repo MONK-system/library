@@ -2,6 +2,7 @@
 #include "MFERData.h"
 #include "HexVector.h"
 #include "DataStack.h"
+#include "FileManager.h"
 #include <iostream>
 
 NihonKohdenData::NihonKohdenData(std::vector<unsigned char> dataVector)
@@ -98,8 +99,7 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
             DataStack waveformDataStack(data->getContents());
             for (auto &channel : fields.channels)
             {
-                auto values = waveformDataStack.pop_values<long long>(channel.blockLength * fields.sequenceCount, getDataTypeSize(channel.dataType));
-                channel.data.insert(channel.data.end(), values.begin(), values.end());
+                channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
             }
             break;
         }
@@ -129,4 +129,51 @@ void NihonKohdenData::printDataFields() const
     std::wcout << L"Sampling Interval: " << fields.samplingInterval << std::endl;
     std::wcout << L"Sequence Count: " << fields.sequenceCount << std::endl;
     std::wcout << L"Channel Count: " << fields.channelCount << std::endl;
+}
+
+void NihonKohdenData::writeWaveformToFile(const std::string &fileName, int channelIndex) const
+{
+    if (channelIndex < 0 || channelIndex >= fields.channelCount)
+    {
+        throw std::runtime_error("Invalid channel index");
+    }
+
+    FileManager file(fileName);
+
+    std::vector<std::string> lines;
+    for (auto val : fields.channels[channelIndex].data)
+    {
+        lines.push_back(std::to_string(val));
+    }
+    file.writeLines(lines);
+    file.closeFile();
+}
+
+std::vector<double> popChannelData(DataStack &waveformDataStack, int num, DataType dataType, ByteOrder byteOrder)
+{
+    switch (dataType)
+    {
+    case DataType::INT_16_S:
+        return waveformDataStack.pop_doubles<short>(num, byteOrder);
+    case DataType::INT_16_U:
+        return waveformDataStack.pop_doubles<unsigned short>(num, byteOrder);
+    case DataType::INT_32_S:
+        return waveformDataStack.pop_doubles<int>(num, byteOrder);
+    case DataType::INT_8_U:
+        return waveformDataStack.pop_doubles<unsigned char>(num, byteOrder);
+    case DataType::STATUS_16:
+        return waveformDataStack.pop_doubles<unsigned short>(num, byteOrder);
+    case DataType::INT_8_S:
+        return waveformDataStack.pop_doubles<char>(num, byteOrder);
+    case DataType::INT_32_U:
+        return waveformDataStack.pop_doubles<unsigned int>(num, byteOrder);
+    case DataType::FLOAT_32:
+        return waveformDataStack.pop_doubles<float>(num, byteOrder);
+    case DataType::FLOAT_64:
+        return waveformDataStack.pop_doubles<double>(num, byteOrder);
+    case DataType::AHA_8:
+        return waveformDataStack.pop_doubles<unsigned char>(num, byteOrder);
+    default:
+        throw std::runtime_error("Invalid data type");
+    }
 }

@@ -174,14 +174,14 @@ float SEN::_getSamplingResolution() const
     DataStack dataStack(contents);
     dataStack.pop_front();
     int exponent = 256 - (int)dataStack.pop_byte();
-    int base = dataStack.pop_bytes(2);
+    int base = dataStack.pop_bytes<unsigned short>(2);
     return base * std::pow(10, exponent);
 }
 
 WAV::WAV(DataStack *dataStack)
 {
     wordLength = dataStack->pop_byte();
-    length = dataStack->pop_bytes(4);
+    length = dataStack->pop_bytes<unsigned>(4);
     contents = dataStack->pop_front(length);
 }
 

@@ -10,6 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 
 enum class ByteOrder
 {
@@ -17,27 +18,48 @@ enum class ByteOrder
     ENDIAN_LITTLE
 };
 
+// Creates a string "AB CD 45 " from a list of bytes, for example
+inline std::string stringifyBytes(std::vector<unsigned char> bytes)
+{
+    std::ostringstream stream;
+    for (auto val : bytes)
+    {
+        stream << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
+    }
+    std::string string = stream.str();
+    string.pop_back();
+    return string;
+}
+
 template <typename T>
 T hexVectorToInt(const std::vector<unsigned char> hexVector, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
 {
-    static_assert(std::is_integral<T>::value, "Return type must be an integral type.");
-
-    if (byteOrder == ByteOrder::ENDIAN_LITTLE)
+    static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "Return type must be an integral or floating-point type.");
+    if (hexVector.size() > sizeof(T))
     {
+        throw std::runtime_error("Vector size is larger than the size of the return type.");
+    }
+
+    T value;
+    // If the byte order needs to be reversed for this system, reverse the vector before copying.
+    if (byteOrder == ByteOrder::ENDIAN_BIG)
+    {
+        // Systems are typically little-endian; reverse if original data is big-endian.
         std::vector<unsigned char> reversedHexVector(hexVector.rbegin(), hexVector.rend());
-        return hexVectorToInt<T>(reversedHexVector, ByteOrder::ENDIAN_BIG);
+        std::memcpy(&value, reversedHexVector.data(), sizeof(T));
     }
-    T result = 0;
-    for (unsigned char byte : hexVector)
+    else
     {
-        result = (result << 8) | byte;
+        // If the system's byte order matches the data's byte order, copy directly.
+        std::memcpy(&value, hexVector.data(), sizeof(T));
     }
 
-    return result;
+    return value;
 }
 
 template int hexVectorToInt<int>(const std::vector<unsigned char>, ByteOrder);
 template long long hexVectorToInt<long long>(const std::vector<unsigned char>, ByteOrder);
+template double hexVectorToInt<double>(const std::vector<unsigned char>, ByteOrder);
 
 template <typename T>
 std::vector<unsigned char> intToHexVector(T value)
@@ -64,19 +86,6 @@ std::vector<unsigned char> intToHexVector(T value)
     }
 
     return hexVector;
-}
-
-// Creates a string "AB CD 45 " from a list of bytes, for example
-inline std::string stringifyBytes(std::vector<unsigned char> bytes)
-{
-    std::ostringstream stream;
-    for (auto val : bytes)
-    {
-        stream << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)val << " ";
-    }
-    std::string string = stream.str();
-    string.pop_back();
-    return string;
 }
 
 // Enum to represent different character encodings

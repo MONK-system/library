@@ -61,41 +61,7 @@ enum class DataType : unsigned char // 1 byte
     AHA_8 = 0x09,     // 8 bit AHA compression
 };
 
-inline int getDataTypeSize(DataType dataType)
-{
-    switch (dataType)
-    {
-    case DataType::INT_16_S:
-    case DataType::INT_16_U:
-        return 2;
-    case DataType::INT_32_S:
-    case DataType::INT_32_U:
-    case DataType::FLOAT_32:
-        return 4;
-    case DataType::INT_8_U:
-    case DataType::INT_8_S:
-    case DataType::AHA_8:
-        return 1;
-    case DataType::STATUS_16:
-        return 2;
-    case DataType::FLOAT_64:
-        return 8;
-    }
-    return 0;
-}
-
-using DataVariant = std::variant<
-    int16_t,  // INT_16_S
-    uint16_t, // INT_16_U
-    int32_t,  // INT_32_S
-    uint8_t,  // INT_8_U
-    uint16_t, // STATUS_16, assuming it's similar to uint16_t
-    int8_t,   // INT_8_S
-    uint32_t, // INT_32_U
-    float,    // FLOAT_32
-    double,   // FLOAT_64
-    uint8_t   // AHA_8, assuming it's similar to uint8_t
-    >;
+std::vector<double> popChannelData(DataStack &waveformDataStack, int num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
 
 struct Channel
 {
@@ -104,7 +70,7 @@ struct Channel
     int blockLength;
     float samplingInterval;
     float samplingResolution;
-    std::vector<long long> data;
+    std::vector<double> data;
 };
 
 class NihonKohdenData
@@ -115,6 +81,7 @@ public:
 
     void printData() const;
     void printDataFields() const;
+    void writeWaveformToFile(const std::string &fileName, int channelIndex) const;
 
     struct DataFields
     {

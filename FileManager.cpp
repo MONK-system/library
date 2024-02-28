@@ -3,7 +3,7 @@
 
 FileManager::FileManager(const std::string &outputFileName) : fileName(outputFileName), outputFormat("csv")
 {
-    outputFile.open(fileName);
+    outputFile.open(fileName + "." + outputFormat, std::ios::out | std::ios::trunc);
     if (!outputFile.is_open())
     {
         std::cerr << "Error opening output file: " << fileName << std::endl;
