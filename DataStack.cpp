@@ -1,6 +1,7 @@
 #include <iostream>
 #include "DataStack.h"
 #include "HexVector.h"
+#include <cstdint>
 
 DataStack::DataStack(std::vector<unsigned char> dataVector)
 {
@@ -112,11 +113,11 @@ std::vector<double> DataStack::pop_doubles(int num, ByteOrder byteOrder)
     return values;
 }
 
-template std::vector<double> DataStack::pop_doubles<short>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<unsigned short>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<int>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<unsigned char>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<char>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<unsigned int>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int16_t>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint16_t>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int32_t>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint8_t>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int8_t>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint32_t>(int, ByteOrder);
 template std::vector<double> DataStack::pop_doubles<float>(int, ByteOrder);
 template std::vector<double> DataStack::pop_doubles<double>(int, ByteOrder);
