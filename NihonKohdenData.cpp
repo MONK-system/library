@@ -98,12 +98,8 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
         case WAV::tag:
         {
             DataStack waveformDataStack(data->getContents());
-            int i = 0;
             for (auto &channel : fields.channels)
             {
-                i++;
-                std::cout << "Channel: " << i << " Waveform left: " << waveformDataStack.size() << "\n";
-                std::cout << "Channel: " << i << " number of data: " << channel.blockLength * fields.sequenceCount << "\n";
                 channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
             }
             break;
