@@ -150,7 +150,7 @@ void NihonKohdenData::writeWaveformToFile(const std::string &fileName, int chann
     file.closeFile();
 }
 
-std::vector<double> popChannelData(DataStack &waveformDataStack, int num, DataType dataType, ByteOrder byteOrder)
+std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
 {
     switch (dataType)
     {

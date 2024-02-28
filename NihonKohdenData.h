@@ -61,7 +61,7 @@ enum class DataType : unsigned char // 1 byte
     AHA_8 = 0x09,     // 8 bit AHA compression
 };
 
-std::vector<double> popChannelData(DataStack &waveformDataStack, int num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
+std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
 
 struct Channel
 {

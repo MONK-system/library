@@ -63,7 +63,7 @@ T DataStack::pop_value(ByteOrder byteOrder)
 }
 
 template <typename T>
-std::vector<T> DataStack::pop_values(int num, ByteOrder byteOrder)
+std::vector<T> DataStack::pop_values(uint64_t num, ByteOrder byteOrder)
 {
     std::vector<T> values;
     for (int i = 0; i < (int)num; ++i)
@@ -80,7 +80,7 @@ std::vector<T> DataStack::pop_values(int num, ByteOrder byteOrder)
     return values;
 }
 
-template std::vector<long long> DataStack::pop_values<long long>(int, ByteOrder);
+template std::vector<long long> DataStack::pop_values<long long>(uint64_t, ByteOrder);
 
 template <typename T>
 double DataStack::pop_double(ByteOrder byteOrder)
@@ -96,10 +96,10 @@ double DataStack::pop_double(ByteOrder byteOrder)
 }
 
 template <typename T>
-std::vector<double> DataStack::pop_doubles(int num, ByteOrder byteOrder)
+std::vector<double> DataStack::pop_doubles(uint64_t num, ByteOrder byteOrder)
 {
     std::vector<double> values;
-    for (int i = 0; i < (int)num; ++i)
+    for (uint64_t i = 0; i < num; ++i)
     {
         try
         {
@@ -113,11 +113,11 @@ std::vector<double> DataStack::pop_doubles(int num, ByteOrder byteOrder)
     return values;
 }
 
-template std::vector<double> DataStack::pop_doubles<int16_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<uint16_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<int32_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<uint8_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<int8_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<uint32_t>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<float>(int, ByteOrder);
-template std::vector<double> DataStack::pop_doubles<double>(int, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int16_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint16_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int32_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint8_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<int8_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<uint32_t>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<float>(uint64_t, ByteOrder);
+template std::vector<double> DataStack::pop_doubles<double>(uint64_t, ByteOrder);
