@@ -1,14 +1,11 @@
 #include "NihonKohdenData.h"
-#include "MFERData.h"
-#include "HexVector.h"
-#include "DataStack.h"
-#include "FileManager.h"
 #include <iostream>
 #include <cstdint>
+#include <sstream>
 
 using namespace std;
 
-NihonKohdenData::NihonKohdenData(vector<unsigned char> dataVector)
+NihonKohdenData::NihonKohdenData(ByteVector dataVector)
 {
     collection = MFERDataCollection(dataVector);
     fields = collectDataFields(collection.getMFERDataVector());
@@ -62,7 +59,7 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
             // TODO: Implement event data
             break;
         case SEQ::tag:
-            fields.sequenceCount = hexVectorToInt<uint16_t>(data->getContents(), fields.byteOrder);
+            fields.sequenceCount = data->getContents().toInt<uint16_t>(fields.byteOrder);
             break;
         case CHN::tag:
             fields.channelCount = (uint8_t)data->getContents()[0];
@@ -79,13 +76,13 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
                 switch (channelAttribute->getTag())
                 {
                 case LDN::tag:
-                    channel.waveformAttributes = LeadMap.at(static_cast<Lead>(hexVectorToInt<uint16_t>(channelAttribute->getContents(), fields.byteOrder)));
+                    channel.waveformAttributes = LeadMap.at(static_cast<Lead>(channelAttribute->getContents().toInt<uint16_t>(fields.byteOrder)));
                     break;
                 case DTP::tag:
                     channel.dataType = static_cast<DataType>(channelAttribute->getContents()[0]);
                     break;
                 case BLK::tag:
-                    channel.blockLength = hexVectorToInt<uint32_t>(channelAttribute->getContents(), fields.byteOrder);
+                    channel.blockLength = channelAttribute->getContents().toInt<uint32_t>(fields.byteOrder);
                     break;
                 case IVL::tag:
                     channel.samplingInterval = channelAttribute->getSamplingInterval();

@@ -1,5 +1,5 @@
 #include "FileManager.h"
-#include <iostream> // For error logging
+#include <iostream>
 
 using namespace std;
 
@@ -47,7 +47,7 @@ FileManager::~FileManager()
 }
 
 // Implementation of readBinaryFile static method
-vector<unsigned char> FileManager::readBinaryFile(const string &fileName)
+ByteVector FileManager::readBinaryFile(const string &fileName)
 {
     ifstream file(fileName, ios::binary);
 
@@ -58,11 +58,11 @@ vector<unsigned char> FileManager::readBinaryFile(const string &fileName)
 
     // Read file length
     file.seekg(0, ios::end);
-    unsigned long long length = file.tellg();
+    uint64_t length = file.tellg();
     file.seekg(0, ios::beg);
 
     // Assign bytes to vector
-    vector<unsigned char> dataVector(length);
+    ByteVector dataVector(length);
     if (!file.read(reinterpret_cast<char *>(dataVector.data()), dataVector.size()))
     {
         throw runtime_error("Error reading file.");
