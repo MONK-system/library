@@ -36,6 +36,7 @@ public:
 
     inline Encoding getEncoding() const { return _getEncoding(); }
     inline float getSamplingInterval() const { return _getSamplingInterval(); }
+    inline std::string getSamplingIntervalString() const { return _getSamplingIntervalString(); }
     inline float getSamplingResolution() const { return _getSamplingResolution(); }
     inline std::vector<std::unique_ptr<MFERData>> getAttributes() const { return _getAttributes(); }
 
@@ -49,6 +50,7 @@ protected:
 
     virtual Encoding _getEncoding() const;
     virtual float _getSamplingInterval() const;
+    virtual std::string _getSamplingIntervalString() const;
     virtual float _getSamplingResolution() const;
     virtual std::vector<std::unique_ptr<MFERData>> _getAttributes() const;
 };
@@ -145,6 +147,7 @@ public:
     static const unsigned char tag = 0x0B;
     unsigned char getTag() const { return tag; }
     float _getSamplingInterval() const;
+    std::string _getSamplingIntervalString() const;
 };
 
 class EVT : public MFERData // Event (NIBP data)

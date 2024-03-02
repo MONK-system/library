@@ -11,8 +11,9 @@ class FileManager
 public:
     FileManager(const std::string &outputFileName);
     ~FileManager(); // Declare the destructor
-    
+
     void setOutputFormat(const std::string &format); // If future file formats are needed
+    void writeLine(const std::string &line);
     void writeLines(const std::vector<std::string> &lines);
     void closeFile();
 

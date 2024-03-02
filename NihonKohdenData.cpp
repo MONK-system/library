@@ -12,7 +12,7 @@ NihonKohdenData::NihonKohdenData(std::vector<unsigned char> dataVector)
     fields = collectDataFields(collection.getMFERDataVector());
 }
 
-NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector)
+DataFields NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector)
 {
     DataFields fields;
 
@@ -54,6 +54,7 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
             break;
         case IVL::tag:
             fields.samplingInterval = data->getSamplingInterval();
+            fields.samplingIntervalString = data->getSamplingIntervalString();
             break;
         case EVT::tag:
             // TODO: Implement event data
@@ -76,7 +77,7 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
                 switch (channelAttribute->getTag())
                 {
                 case LDN::tag:
-                    channel.waveformAttributes = static_cast<Lead>(hexVectorToInt<uint16_t>(channelAttribute->getContents(), fields.byteOrder));
+                    channel.waveformAttributes = LeadMap.at(static_cast<Lead>(hexVectorToInt<uint16_t>(channelAttribute->getContents(), fields.byteOrder)));
                     break;
                 case DTP::tag:
                     channel.dataType = static_cast<DataType>(channelAttribute->getContents()[0]);
@@ -86,6 +87,7 @@ NihonKohdenData::DataFields NihonKohdenData::collectDataFields(const std::vector
                     break;
                 case IVL::tag:
                     channel.samplingInterval = channelAttribute->getSamplingInterval();
+                    channel.samplingIntervalString = channelAttribute->getSamplingIntervalString();
                     break;
                 case SEN::tag:
                     channel.samplingResolution = channelAttribute->getSamplingResolution();
@@ -132,22 +134,78 @@ void NihonKohdenData::printDataFields() const
     std::wcout << L"Channel Count: " << fields.channelCount << std::endl;
 }
 
-void NihonKohdenData::writeWaveformToFile(const std::string &fileName, int channelIndex) const
+void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
 {
-    if (channelIndex < 0 || channelIndex >= fields.channelCount)
-    {
-        throw std::runtime_error("Invalid channel index");
-    }
-
     FileManager file(fileName);
 
-    std::vector<std::string> lines;
-    for (auto val : fields.channels[channelIndex].data)
+    // Write csv header & get lowest sampling interval
+    std::stringstream channelsHeader;
+    uint32_t largestBlockLength = 0;
+    double samplingInterval = fields.samplingInterval;
+    for (auto channel : fields.channels)
     {
-        lines.push_back(std::to_string(val));
+        channelsHeader << ", " << channel.waveformAttributes.parameterName << ": " << channel.waveformAttributes.samplingResolution;
+        if (channel.blockLength > largestBlockLength)
+        {
+            largestBlockLength = channel.blockLength;
+            samplingInterval = channel.samplingInterval;
+        }
     }
+    std::stringstream header;
+    header << "Time: "
+           << "(s)" << channelsHeader.str();
+
+    file.writeLine(header.str()); // Write header to file
+
+    // Write waveform data
+    std::vector<std::string> lines;
+    uint64_t totalBlocks = fields.sequenceCount * largestBlockLength;
+    lines.reserve(totalBlocks);
+
+    int channelIntervals[fields.channels.size()];
+    for (std::size_t i = 0; i < fields.channels.size(); i++)
+    {
+        channelIntervals[i] = largestBlockLength / fields.channels[i].blockLength;
+    }
+
+    int loggingInterval = 1000;
+    std::cout << "0 / " << totalBlocks << " samples processed";
+    for (uint64_t i = 0; i < totalBlocks; i++)
+    {
+        if (i % loggingInterval == 0)
+        {
+            std::cout << "\r" << i << " / " << totalBlocks << " samples processed";
+        }
+
+        std::stringstream line;
+        line << i * samplingInterval;
+        for (std::size_t j = 0; j < fields.channels.size(); j++)
+        {
+            if (channelIntervals[j] == 1)
+            {
+                line << ", " << fields.channels[j].data[i];
+            }
+            else
+            {
+                // If i * (channel.blockLength/largestBlocklength) is an integer, then write the value
+                if (i % channelIntervals[j] == 0)
+                {
+                    line << ", " << fields.channels[j].data[i / channelIntervals[j]];
+                }
+                else
+                {
+                    line << ", ";
+                }
+            }
+        }
+        lines.push_back(line.str());
+    }
+    std::cout << "\rProcessing complete. " << totalBlocks << " samples processed.\n";
+
     file.writeLines(lines);
     file.closeFile();
+
+    std::cout << "Waveform data written to " << fileName << ".csv" << std::endl;
 }
 
 std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)

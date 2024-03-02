@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     nihonKohdenData.printData();
     nihonKohdenData.printDataFields();
-    nihonKohdenData.writeWaveformToFile("output", 2);
+    nihonKohdenData.writeWaveformToCsv("output");
 
     return 0;
 }

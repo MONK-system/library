@@ -1,21 +1,39 @@
+import argparse
 import pandas as pd
-import plotly.express as px
+import plotly.graph_objects as go
 
-# Path to your CSV file
-csv_file_path = 'output.csv'
+# Initialize the parser
+parser = argparse.ArgumentParser(description='Plot CSV data')
 
-# Read the CSV file. Assuming it's a single column of values with no header.
-df = pd.read_csv(csv_file_path, header=None)
+# Add the '-i' argument for the input file path
+parser.add_argument('-i', '--input', help='Input CSV file path', required=True)
 
-# Name the column for clarity
-df.columns = ['Value']
+# Parse the command line arguments
+args = parser.parse_args()
 
-# Reset the index to use it as the X-axis in the plot
-df.reset_index(inplace=True)
-df.columns = ['Index', 'Value']
+# Use the input file path provided from the command line
+csv_file_path = args.input
 
-# Create an interactive line plot with Plotly Express
-fig = px.line(df, x='Index', y='Value', title='Interactive Line Graph')
+# Define the number of rows to read (optional, remove or adjust as needed)
+number_of_rows = 10000
+
+# Read the CSV file, specifying the number of rows to read
+df = pd.read_csv(csv_file_path, nrows=number_of_rows)
+
+# Create a Plotly Graph Objects figure
+fig = go.Figure()
+
+# Add a line for each measurement column, excluding 'Time (s)'
+# Skip 'Time (s)' which is assumed to be the first column
+for column in df.columns[1:]:
+    fig.add_trace(go.Scatter(x=df['Time (s)'],
+                  y=df[column], mode='lines', name=column))
+
+# Update layout with titles and adjust other layout elements
+fig.update_layout(title='Measurements Over Time (Limited Data)',
+                  xaxis_title='Time (s)',
+                  yaxis_title='Measurement Value',
+                  legend_title='Measurements')
 
 # Show the plot
 fig.show()

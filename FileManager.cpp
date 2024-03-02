@@ -15,7 +15,7 @@ void FileManager::setOutputFormat(const std::string &format)
     outputFormat = format;
 }
 
-void FileManager::writeLines(const std::vector<std::string> &lines)
+void FileManager::writeLine(const std::string &line)
 {
     if (!outputFile.is_open())
     {
@@ -23,9 +23,14 @@ void FileManager::writeLines(const std::vector<std::string> &lines)
         return;
     }
 
+    outputFile << line << std::endl;
+}
+
+void FileManager::writeLines(const std::vector<std::string> &lines)
+{
     for (const auto &line : lines)
     {
-        outputFile << line << std::endl;
+        writeLine(line);
     }
 }
 

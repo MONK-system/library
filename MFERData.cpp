@@ -118,6 +118,11 @@ float MFERData::_getSamplingInterval() const
     throw std::runtime_error("No sampling interval for this data type.");
 }
 
+std::string MFERData::_getSamplingIntervalString() const
+{
+    throw std::runtime_error("No sampling interval for this data type.");
+}
+
 float MFERData::_getSamplingResolution() const
 {
     throw std::runtime_error("No sampling resolution for this data type.");
@@ -138,6 +143,13 @@ float IVL::_getSamplingInterval() const
     int base = contents[2];
     int exponent = contents[1] - 256;
     return base * std::pow(10, exponent);
+}
+
+std::string IVL::_getSamplingIntervalString() const
+{
+    std::ostringstream stream;
+    stream << (int)contents[2] << "×10^" << (int)contents[1] - 256 << " (s)";
+    return stream.str();
 }
 
 ATT::ATT(DataStack *dataStack)
