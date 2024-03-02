@@ -1,8 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <vector>
-#include "MFERDataCollection.h"
 #include "FileManager.h"
 #include "NihonKohdenData.h"
 
@@ -10,8 +5,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    string inputFilename;
-    string outputFilename = "output.csv"; // Default output filename
+    string inputFilename;  // Input filename
+    string outputFilename; // Default output filename
 
     // Argument parsing
     for (int i = 1; i < argc; i += 2)
@@ -26,7 +21,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << endl;
+            cerr << "Usage: " << argv[0] << " -i <InputFilename> -o <OutputFilename>" << endl;
             return 1;
         }
     }
@@ -35,8 +30,15 @@ int main(int argc, char *argv[])
     if (inputFilename.empty())
     {
         cerr << "Input filename is required." << endl;
-        cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << endl;
+        cerr << "Usage: " << argv[0] << " -i <InputFilename> -o <OutputFilename>" << endl;
         return 1;
+    }
+
+    // Ensure the output filename is provided
+    if (outputFilename.empty())
+    {
+        cerr << "Output filename is required." << endl;
+        cerr << "Usage: " << argv[0] << " -i <InputFilename> -o <OutputFilename>" << endl;
     }
 
     try
