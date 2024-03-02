@@ -27,13 +27,6 @@ public:
     const uint64_t &getLength() const { return length; };
     ByteVector getContents() const;
 
-    template <typename T>
-    const void setLength(T num)
-    {
-        static_assert(is_integral<T>::value, "Function only accepts integral types.");
-        length = static_cast<decltype(length)>(num);
-    }
-
     inline Encoding getEncoding() const { return _getEncoding(); }
     inline float getSamplingInterval() const { return _getSamplingInterval(); }
     inline string getSamplingIntervalString() const { return _getSamplingIntervalString(); }
