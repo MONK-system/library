@@ -5,17 +5,17 @@
 #include <vector>
 #include <deque>
 #include <cstdint>
-#include "HexVector.h"
+#include "ByteVector.h"
 
 using namespace std;
 
 class DataStack
 {
 public:
-    DataStack(vector<unsigned char> dataVector);
+    DataStack(const ByteVector dataVector);
 
     size_t size() const;
-    vector<unsigned char> pop_front(unsigned long long num = 1);
+    ByteVector pop_front(unsigned long long num = 1);
     template <typename T>
     T pop_bytes(unsigned long long num);
     unsigned char pop_byte();

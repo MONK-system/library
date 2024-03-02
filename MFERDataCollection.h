@@ -14,7 +14,7 @@ class MFERDataCollection
 {
 public:
     MFERDataCollection() = default;
-    MFERDataCollection(vector<unsigned char> dataVector);
+    MFERDataCollection(ByteVector dataVector);
 
     inline const vector<unique_ptr<MFERData>> &getMFERDataVector() const
     {
@@ -28,6 +28,6 @@ private:
 };
 
 string collectionToString(const vector<unique_ptr<MFERData>> *collection, string left);
-vector<unique_ptr<MFERData>> parseMFERDataCollection(vector<unsigned char> dataVector);
+vector<unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVector);
 
 #endif

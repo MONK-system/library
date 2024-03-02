@@ -1,6 +1,7 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
+#include "ByteVector.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -18,7 +19,7 @@ public:
     void writeLines(const vector<string> &lines);
     void closeFile();
 
-    static vector<unsigned char> readBinaryFile(const string &fileName);
+    static ByteVector readBinaryFile(const string &fileName);
 
 private:
     string fileName;

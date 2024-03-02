@@ -1,35 +1,35 @@
 #include <iostream>
 #include "DataStack.h"
-#include "HexVector.h"
+#include "ByteVector.h"
 #include <cstdint>
 
 using namespace std;
 
-DataStack::DataStack(vector<unsigned char> dataVector)
+DataStack::DataStack(const ByteVector dataVector)
 {
     // Transfer data to deque
     data.insert(data.end(), dataVector.begin(), dataVector.end());
 }
 
-vector<unsigned char> DataStack::pop_front(unsigned long long num)
+ByteVector DataStack::pop_front(unsigned long long num)
 {
     if (data.size() < num)
     {
         throw runtime_error("Error while reading data, number out of range.");
     }
-    vector<unsigned char> hexVector;
+    ByteVector byteVector;
     for (int i = 0; i < (int)num; ++i)
     {
-        hexVector.push_back(data.front());
+        byteVector.push_back(data.front());
         data.pop_front();
     }
-    return hexVector;
+    return byteVector;
 }
 
 template <typename T>
 T DataStack::pop_bytes(unsigned long long num)
 {
-    return hexVectorToInt<T>(pop_front(num));
+    return pop_front(num).toInt<T>();
 }
 
 template unsigned short DataStack::pop_bytes<unsigned short>(unsigned long long);
@@ -37,7 +37,7 @@ template unsigned DataStack::pop_bytes<unsigned>(unsigned long long);
 
 unsigned char DataStack::pop_byte()
 {
-    return hexVectorToInt<unsigned char>(pop_front());
+    return pop_front().toInt<uint8_t>();
 }
 
 unsigned char DataStack::read_byte() const
@@ -55,8 +55,8 @@ T DataStack::pop_value(ByteOrder byteOrder)
 {
     try
     {
-        vector<unsigned char> hexVector = pop_front(sizeof(T));
-        return hexVectorToInt<T>(hexVector, byteOrder);
+        ByteVector byteVector = pop_front(sizeof(T));
+        return byteVector.toInt<T>(byteOrder);
     }
     catch (const runtime_error &e)
     {

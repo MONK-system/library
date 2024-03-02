@@ -4,11 +4,11 @@
 #include <variant>
 #include <cstdint>
 #include <vector>
+#include <map>
 #include "MFERDataCollection.h"
 #include "MFERData.h"
 #include "FileManager.h"
-#include "HexVector.h"
-#include <map>
+#include "ByteVector.h"
 
 using namespace std;
 
@@ -302,7 +302,7 @@ struct DataFields
 class NihonKohdenData
 {
 public:
-    NihonKohdenData(vector<unsigned char> dataVector);
+    NihonKohdenData(ByteVector dataVector);
     NihonKohdenData(const string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
     void printData() const;

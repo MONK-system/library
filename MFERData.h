@@ -4,7 +4,7 @@
 #include <memory>
 #include "DataStack.h"
 #include "MFERDataCollection.h"
-#include "HexVector.h"
+#include "ByteVector.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ public:
 
     virtual unsigned char getTag() const { return 0x00; };
     const unsigned long long &getLength() const { return length; };
-    vector<unsigned char> getContents() const;
+    ByteVector getContents() const;
 
     template <typename T>
     const void setLength(T num)
@@ -44,10 +44,10 @@ public:
 
 protected:
     unsigned long long length;
-    vector<unsigned char> contents;
+    ByteVector contents;
 
-    inline string tagString() const { return stringifyBytes(intToHexVector<decltype(getTag())>(getTag())); };
-    inline string lengthString() const { return stringifyBytes(intToHexVector<decltype(length)>(length)); };
+    inline string tagString() const { return ByteVector::fromInt<decltype(getTag())>(getTag()).stringify(); };
+    inline string lengthString() const { return ByteVector::fromInt<decltype(length)>(length).stringify(); };
     virtual string contentsString(string left) const;
 
     virtual Encoding _getEncoding() const;

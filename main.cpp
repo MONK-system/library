@@ -1,5 +1,6 @@
 #include "FileManager.h"
 #include "NihonKohdenData.h"
+#include <iostream>
 
 using namespace std;
 

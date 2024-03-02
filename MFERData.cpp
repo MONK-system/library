@@ -6,7 +6,6 @@
 #include <type_traits>
 #include <cmath>
 #include "MFERData.h"
-#include "HexVector.h"
 #include "DataStack.h"
 #include "MFERDataCollection.h"
 
@@ -95,19 +94,19 @@ string MFERData::contentsString(string left) const
     }
     else
     {
-        stream << "| " << stringifyBytes(contents);
+        stream << "| " << contents.stringify();
     }
     return stream.str();
 }
 
-vector<unsigned char> MFERData::getContents() const
+ByteVector MFERData::getContents() const
 {
     return contents;
 }
 
 EncodedString MFERData::getEncodedString(Encoding encoding) const
 {
-    return convertToEncodedString(contents, encoding);
+    return contents.toEncodedString(encoding);
 }
 
 Encoding MFERData::_getEncoding() const
@@ -137,7 +136,7 @@ vector<unique_ptr<MFERData>> MFERData::_getAttributes() const
 
 Encoding TXC::_getEncoding() const
 {
-    return stringToEncoding(convertToString(contents));
+    return stringToEncoding(contents.toString());
 };
 
 float IVL::_getSamplingInterval() const

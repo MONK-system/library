@@ -5,7 +5,7 @@
 
 using namespace std;
 
-MFERDataCollection::MFERDataCollection(vector<unsigned char> dataVector)
+MFERDataCollection::MFERDataCollection(ByteVector dataVector)
 {
     mferDataVector = parseMFERDataCollection(dataVector);
 }
@@ -16,7 +16,7 @@ string MFERDataCollection::toString(int maxByteLength) const
     return collectionToString(&mferDataVector, "");
 }
 
-vector<unique_ptr<MFERData>> parseMFERDataCollection(vector<unsigned char> dataVector)
+vector<unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVector)
 {
     DataStack dataBlock(dataVector);
     vector<unique_ptr<MFERData>> collection;
