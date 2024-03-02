@@ -123,6 +123,7 @@ void NihonKohdenData::printData() const
 
 void NihonKohdenData::printDataFields() const
 {
+    std::cout << "\nData Fields: \n";
     std::wcout << L"Preamble: " << fields.preamble << std::endl;
     std::wcout << L"Byte Order: " << (fields.byteOrder == ByteOrder::ENDIAN_LITTLE ? L"Little Endian" : L"Big Endian") << std::endl;
     std::wcout << L"Model Info: " << fields.modelInfo.str << std::endl;
@@ -136,6 +137,7 @@ void NihonKohdenData::printDataFields() const
 
 void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
 {
+    std::cout << "\nWriting waveform data to " << fileName << std::endl;
     FileManager file(fileName);
 
     // Write csv header & get lowest sampling interval
@@ -205,7 +207,7 @@ void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
     file.writeLines(lines);
     file.closeFile();
 
-    std::cout << "Waveform data written to " << fileName << ".csv" << std::endl;
+    std::cout << "Waveform data written to " << fileName << std::endl;
 }
 
 std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)

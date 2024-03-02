@@ -1,18 +1,13 @@
 #include "FileManager.h"
 #include <iostream> // For error logging
 
-FileManager::FileManager(const std::string &outputFileName) : fileName(outputFileName), outputFormat("csv")
+FileManager::FileManager(const std::string &outputFileName) : fileName(outputFileName)
 {
-    outputFile.open(fileName + "." + outputFormat, std::ios::out | std::ios::trunc);
+    outputFile.open(fileName, std::ios::out | std::ios::trunc);
     if (!outputFile.is_open())
     {
         std::cerr << "Error opening output file: " << fileName << std::endl;
     }
-}
-
-void FileManager::setOutputFormat(const std::string &format)
-{
-    outputFormat = format;
 }
 
 void FileManager::writeLine(const std::string &line)

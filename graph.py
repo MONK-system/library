@@ -26,7 +26,7 @@ fig = go.Figure()
 # Add a line for each measurement column, excluding 'Time (s)'
 # Skip 'Time (s)' which is assumed to be the first column
 for column in df.columns[1:]:
-    fig.add_trace(go.Scatter(x=df['Time (s)'],
+    fig.add_trace(go.Scatter(x=df['Time: (s)'],
                   y=df[column], mode='lines', name=column))
 
 # Update layout with titles and adjust other layout elements
