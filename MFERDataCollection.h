@@ -6,26 +6,28 @@
 #include "MFERData.h"
 #include "DataStack.h"
 
+using namespace std;
+
 class MFERData;
 
 class MFERDataCollection
 {
 public:
     MFERDataCollection() = default;
-    MFERDataCollection(std::vector<unsigned char> dataVector);
+    MFERDataCollection(vector<unsigned char> dataVector);
 
-    inline const std::vector<std::unique_ptr<MFERData>>& getMFERDataVector() const
+    inline const vector<unique_ptr<MFERData>> &getMFERDataVector() const
     {
         return mferDataVector;
     };
     inline size_t size() const { return mferDataVector.size(); };
-    std::string toString(int maxByteLength = 100) const;
+    string toString(int maxByteLength = 100) const;
 
 private:
-    std::vector<std::unique_ptr<MFERData>> mferDataVector;
+    vector<unique_ptr<MFERData>> mferDataVector;
 };
 
-std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left);
-std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsigned char> dataVector);
+string collectionToString(const vector<unique_ptr<MFERData>> *collection, string left);
+vector<unique_ptr<MFERData>> parseMFERDataCollection(vector<unsigned char> dataVector);
 
 #endif

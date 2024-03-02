@@ -10,6 +10,8 @@
 #include "HexVector.h"
 #include <map>
 
+using namespace std;
+
 enum class PatientSex
 {
     UNKNOWN,
@@ -21,7 +23,7 @@ enum class PatientSex
 struct NIBPData // TODO: elaborate on time format.
 {
     int eventCode;
-    std::string startTime; // TODO: Implement time format
+    string startTime; // TODO: Implement time format
     int duration;
     int sys;
     int dias;
@@ -134,13 +136,13 @@ enum class Lead : uint16_t // 2 bytes
 struct LeadInfo
 {
     Lead lead;
-    std::string parameterName;
-    std::string samplingResolution;
+    string parameterName;
+    string samplingResolution;
     uint8_t unitCode;
 };
 
 // Map of Lead codes to their string representation
-const std::map<Lead, LeadInfo>
+const map<Lead, LeadInfo>
     LeadMap = {
         {Lead::PACING_STATUS, LeadInfo{Lead::PACING_STATUS, "Pacing Status", "N/A", 0}},
         {Lead::PACING_BODY_POS, LeadInfo{Lead::PACING_BODY_POS, "Pacing Body Position", "N/A", 0}},
@@ -264,7 +266,7 @@ enum class DataType : unsigned char // 1 byte
     AHA_8 = 0x09,     // 8 bit AHA compression
 };
 
-std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
 
 struct Channel
 {
@@ -273,45 +275,45 @@ struct Channel
     DataType dataType;
     uint32_t blockLength;
     float samplingInterval;
-    std::string samplingIntervalString;
+    string samplingIntervalString;
     float samplingResolution;
-    std::vector<double> data;
+    vector<double> data;
 };
 
 struct DataFields
 {
-    std::wstring preamble;
+    wstring preamble;
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
     EncodedString modelInfo;
     unsigned short longwaveformType; // Unsure of encoding
-    std::string time;                // TODO: Implement time format
+    string time;                     // TODO: Implement time format
     EncodedString patientID;
     EncodedString patientName;
-    std::string birthDate; // TODO: Implement birth date / age format
+    string birthDate; // TODO: Implement birth date / age format
     PatientSex patientSex;
     float samplingInterval;
-    std::string samplingIntervalString;
-    std::vector<NIBPData> events;
+    string samplingIntervalString;
+    vector<NIBPData> events;
     int sequenceCount;
     int channelCount;
-    std::vector<Channel> channels;
+    vector<Channel> channels;
 };
 
 class NihonKohdenData
 {
 public:
-    NihonKohdenData(std::vector<unsigned char> dataVector);
-    NihonKohdenData(const std::string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
+    NihonKohdenData(vector<unsigned char> dataVector);
+    NihonKohdenData(const string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
     void printData() const;
     void printDataFields() const;
-    void writeWaveformToCsv(const std::string &fileName) const;
+    void writeWaveformToCsv(const string &fileName) const;
 
 private:
     MFERDataCollection collection;
     DataFields fields;
 
-    DataFields collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector);
+    DataFields collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector);
 };
 
 #endif

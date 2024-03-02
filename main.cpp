@@ -6,25 +6,27 @@
 #include "FileManager.h"
 #include "NihonKohdenData.h"
 
+using namespace std;
+
 int main(int argc, char *argv[])
 {
-    std::string inputFilename;
-    std::string outputFilename = "output.csv"; // Default output filename
+    string inputFilename;
+    string outputFilename = "output.csv"; // Default output filename
 
     // Argument parsing
     for (int i = 1; i < argc; i += 2)
     {
-        if (std::string(argv[i]) == "-i" && i + 1 < argc)
+        if (string(argv[i]) == "-i" && i + 1 < argc)
         {
             inputFilename = argv[i + 1];
         }
-        else if (std::string(argv[i]) == "-o" && i + 1 < argc)
+        else if (string(argv[i]) == "-o" && i + 1 < argc)
         {
             outputFilename = argv[i + 1];
         }
         else
         {
-            std::cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << std::endl;
+            cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << endl;
             return 1;
         }
     }
@@ -32,8 +34,8 @@ int main(int argc, char *argv[])
     // Ensure the input filename is provided
     if (inputFilename.empty())
     {
-        std::cerr << "Input filename is required." << std::endl;
-        std::cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << std::endl;
+        cerr << "Input filename is required." << endl;
+        cerr << "Usage: " << argv[0] << " -i <InputFilename> [-o <OutputFilename>]" << endl;
         return 1;
     }
 
@@ -45,13 +47,13 @@ int main(int argc, char *argv[])
         nihonKohdenData.printDataFields();
         nihonKohdenData.writeWaveformToCsv(outputFilename);
     }
-    catch (const std::exception &e)
+    catch (const exception &e)
     {
-        std::cerr << "Error reading input file: " << e.what() << std::endl;
+        cerr << "Error reading input file: " << e.what() << endl;
         return 1;
     }
 
-    std::cout << std::endl;
+    cout << endl;
 
     return 0;
 }

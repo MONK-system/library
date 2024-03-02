@@ -6,6 +6,8 @@
 #include "MFERDataCollection.h"
 #include "HexVector.h"
 
+using namespace std;
+
 class MFERDataCollection;
 
 class MFERData
@@ -16,46 +18,46 @@ public:
 
     static int maxByteLength;
 
-    static inline std::string headerString() { return "| Tag   | Length      | Contents"; }
-    static inline std::string sectionString() { return "|-------|-------------|----------->"; }
-    static inline std::string spacerString() { return "|       |             "; }
-    std::string toString(std::string left) const;
+    static inline string headerString() { return "| Tag   | Length      | Contents"; }
+    static inline string sectionString() { return "|-------|-------------|----------->"; }
+    static inline string spacerString() { return "|       |             "; }
+    string toString(string left) const;
 
     EncodedString getEncodedString(Encoding encoding) const;
 
     virtual unsigned char getTag() const { return 0x00; };
     const unsigned long long &getLength() const { return length; };
-    std::vector<unsigned char> getContents() const;
+    vector<unsigned char> getContents() const;
 
     template <typename T>
     const void setLength(T num)
     {
-        static_assert(std::is_integral<T>::value, "Function only accepts integral types.");
+        static_assert(is_integral<T>::value, "Function only accepts integral types.");
         length = static_cast<decltype(length)>(num);
     }
 
     inline Encoding getEncoding() const { return _getEncoding(); }
     inline float getSamplingInterval() const { return _getSamplingInterval(); }
-    inline std::string getSamplingIntervalString() const { return _getSamplingIntervalString(); }
+    inline string getSamplingIntervalString() const { return _getSamplingIntervalString(); }
     inline float getSamplingResolution() const { return _getSamplingResolution(); }
-    inline std::vector<std::unique_ptr<MFERData>> getAttributes() const { return _getAttributes(); }
+    inline vector<unique_ptr<MFERData>> getAttributes() const { return _getAttributes(); }
 
 protected:
     unsigned long long length;
-    std::vector<unsigned char> contents;
+    vector<unsigned char> contents;
 
-    inline std::string tagString() const { return stringifyBytes(intToHexVector<decltype(getTag())>(getTag())); };
-    inline std::string lengthString() const { return stringifyBytes(intToHexVector<decltype(length)>(length)); };
-    virtual std::string contentsString(std::string left) const;
+    inline string tagString() const { return stringifyBytes(intToHexVector<decltype(getTag())>(getTag())); };
+    inline string lengthString() const { return stringifyBytes(intToHexVector<decltype(length)>(length)); };
+    virtual string contentsString(string left) const;
 
     virtual Encoding _getEncoding() const;
     virtual float _getSamplingInterval() const;
-    virtual std::string _getSamplingIntervalString() const;
+    virtual string _getSamplingIntervalString() const;
     virtual float _getSamplingResolution() const;
-    virtual std::vector<std::unique_ptr<MFERData>> _getAttributes() const;
+    virtual vector<unique_ptr<MFERData>> _getAttributes() const;
 };
 
-std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack);
+unique_ptr<MFERData> parseMFERData(DataStack *dataStack);
 
 class PRE : public MFERData // Preamble
 {
@@ -147,7 +149,7 @@ public:
     static const unsigned char tag = 0x0B;
     unsigned char getTag() const { return tag; }
     float _getSamplingInterval() const;
-    std::string _getSamplingIntervalString() const;
+    string _getSamplingIntervalString() const;
 };
 
 class EVT : public MFERData // Event (NIBP data)
@@ -189,12 +191,12 @@ public:
     unsigned char getTag() const { return tag; }
     ATT(DataStack *dataStack);
 
-    std::vector<std::unique_ptr<MFERData>> _getAttributes() const;
+    vector<unique_ptr<MFERData>> _getAttributes() const;
 
 private:
     unsigned char channel;
-    std::vector<std::unique_ptr<MFERData>> attributes;
-    std::string contentsString(std::string left) const;
+    vector<unique_ptr<MFERData>> attributes;
+    string contentsString(string left) const;
 };
 
 class WAV : public MFERData // Waveform data
@@ -216,7 +218,7 @@ public:
     END(DataStack *dataStack);
 
 private:
-    std::string contentsString(std::string left) const;
+    string contentsString(string left) const;
 };
 
 class LDN : public MFERData // Waveform attributes (Contains Lead)

@@ -3,30 +3,32 @@
 #include "MFERDataCollection.h"
 #include "MFERData.h"
 
-MFERDataCollection::MFERDataCollection(std::vector<unsigned char> dataVector)
+using namespace std;
+
+MFERDataCollection::MFERDataCollection(vector<unsigned char> dataVector)
 {
     mferDataVector = parseMFERDataCollection(dataVector);
 }
 
-std::string MFERDataCollection::toString(int maxByteLength) const
+string MFERDataCollection::toString(int maxByteLength) const
 {
     MFERData::maxByteLength = maxByteLength;
     return collectionToString(&mferDataVector, "");
 }
 
-std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsigned char> dataVector)
+vector<unique_ptr<MFERData>> parseMFERDataCollection(vector<unsigned char> dataVector)
 {
     DataStack dataBlock(dataVector);
-    std::vector<std::unique_ptr<MFERData>> collection;
+    vector<unique_ptr<MFERData>> collection;
 
     while (dataBlock.size() > 0)
     {
         try
         {
-            std::unique_ptr<MFERData> data = parseMFERData(&dataBlock);
+            unique_ptr<MFERData> data = parseMFERData(&dataBlock);
 
             // Add to collection
-            collection.push_back(std::move(data));
+            collection.push_back(move(data));
 
             // Exit if at end of file (tag 80)
             if (dataBlock.size() <= 0)
@@ -34,7 +36,7 @@ std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsig
                 break;
             }
         }
-        catch (const std::runtime_error &e)
+        catch (const runtime_error &e)
         {
             throw e;
         }
@@ -42,9 +44,9 @@ std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(std::vector<unsig
     return collection;
 }
 
-std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left)
+string collectionToString(const vector<unique_ptr<MFERData>> *collection, string left)
 {
-    std::ostringstream stream;
+    ostringstream stream;
     stream << MFERData::headerString() << "\n"
            << left << MFERData::sectionString();
 
@@ -59,7 +61,7 @@ std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *col
 
     if (stream.tellp() > 0)
     {
-        stream.seekp(-1, std::ios_base::end);
+        stream.seekp(-1, ios_base::end);
     }
 
     return stream.str();

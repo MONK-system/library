@@ -6,21 +6,23 @@
 #include <fstream>
 #include <stdexcept>
 
+using namespace std;
+
 class FileManager
 {
 public:
-    FileManager(const std::string &outputFileName);
+    FileManager(const string &outputFileName);
     ~FileManager(); // Declare the destructor
 
-    void writeLine(const std::string &line);
-    void writeLines(const std::vector<std::string> &lines);
+    void writeLine(const string &line);
+    void writeLines(const vector<string> &lines);
     void closeFile();
 
-    static std::vector<unsigned char> readBinaryFile(const std::string &fileName);
+    static vector<unsigned char> readBinaryFile(const string &fileName);
 
 private:
-    std::string fileName;
-    std::ofstream outputFile;
+    string fileName;
+    ofstream outputFile;
 };
 
 #endif // FILEMANAGER_H

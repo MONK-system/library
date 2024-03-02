@@ -6,13 +6,15 @@
 #include <iostream>
 #include <cstdint>
 
-NihonKohdenData::NihonKohdenData(std::vector<unsigned char> dataVector)
+using namespace std;
+
+NihonKohdenData::NihonKohdenData(vector<unsigned char> dataVector)
 {
     collection = MFERDataCollection(dataVector);
     fields = collectDataFields(collection.getMFERDataVector());
 }
 
-DataFields NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector)
+DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
 {
     DataFields fields;
 
@@ -70,7 +72,7 @@ DataFields NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<
             break;
         case ATT::tag:
         {
-            const std::vector<std::unique_ptr<MFERData>> channelAttributes = data->getAttributes();
+            const vector<unique_ptr<MFERData>> channelAttributes = data->getAttributes();
             Channel channel;
             for (const auto &channelAttribute : channelAttributes)
             {
@@ -117,31 +119,31 @@ DataFields NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<
 
 void NihonKohdenData::printData() const
 {
-    std::cout << std::endl
-              << collection.toString() << std::endl;
+    cout << endl
+         << collection.toString() << endl;
 }
 
 void NihonKohdenData::printDataFields() const
 {
-    std::cout << "\nData Fields: \n";
-    std::wcout << L"Preamble: " << fields.preamble << std::endl;
-    std::wcout << L"Byte Order: " << (fields.byteOrder == ByteOrder::ENDIAN_LITTLE ? L"Little Endian" : L"Big Endian") << std::endl;
-    std::wcout << L"Model Info: " << fields.modelInfo.str << std::endl;
-    std::wcout << L"Longwaveform Type: " << fields.longwaveformType << std::endl;
-    std::wcout << L"Patient ID: " << fields.patientID.str << std::endl;
-    std::wcout << L"Patient Name: " << fields.patientName.str << std::endl;
-    std::wcout << L"Sampling Interval: " << fields.samplingInterval << std::endl;
-    std::wcout << L"Sequence Count: " << fields.sequenceCount << std::endl;
-    std::wcout << L"Channel Count: " << fields.channelCount << std::endl;
+    cout << "\nData Fields: \n";
+    wcout << L"Preamble: " << fields.preamble << endl;
+    wcout << L"Byte Order: " << (fields.byteOrder == ByteOrder::ENDIAN_LITTLE ? L"Little Endian" : L"Big Endian") << endl;
+    wcout << L"Model Info: " << fields.modelInfo.str << endl;
+    wcout << L"Longwaveform Type: " << fields.longwaveformType << endl;
+    wcout << L"Patient ID: " << fields.patientID.str << endl;
+    wcout << L"Patient Name: " << fields.patientName.str << endl;
+    wcout << L"Sampling Interval: " << fields.samplingInterval << endl;
+    wcout << L"Sequence Count: " << fields.sequenceCount << endl;
+    wcout << L"Channel Count: " << fields.channelCount << endl;
 }
 
-void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
+void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
 {
-    std::cout << "\nWriting waveform data to " << fileName << std::endl;
+    cout << "\nWriting waveform data to " << fileName << endl;
     FileManager file(fileName);
 
     // Write csv header & get lowest sampling interval
-    std::stringstream channelsHeader;
+    stringstream channelsHeader;
     uint32_t largestBlockLength = 0;
     double samplingInterval = fields.samplingInterval;
     for (auto channel : fields.channels)
@@ -153,35 +155,35 @@ void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
             samplingInterval = channel.samplingInterval;
         }
     }
-    std::stringstream header;
+    stringstream header;
     header << "Time: "
            << "(s)" << channelsHeader.str();
 
     file.writeLine(header.str()); // Write header to file
 
     // Write waveform data
-    std::vector<std::string> lines;
+    vector<string> lines;
     uint64_t totalBlocks = fields.sequenceCount * largestBlockLength;
     lines.reserve(totalBlocks);
 
     int channelIntervals[fields.channels.size()];
-    for (std::size_t i = 0; i < fields.channels.size(); i++)
+    for (size_t i = 0; i < fields.channels.size(); i++)
     {
         channelIntervals[i] = largestBlockLength / fields.channels[i].blockLength;
     }
 
     int loggingInterval = 1000;
-    std::cout << "0 / " << totalBlocks << " samples processed";
+    cout << "0 / " << totalBlocks << " samples processed";
     for (uint64_t i = 0; i < totalBlocks; i++)
     {
         if (i % loggingInterval == 0)
         {
-            std::cout << "\r" << i << " / " << totalBlocks << " samples processed";
+            cout << "\r" << i << " / " << totalBlocks << " samples processed";
         }
 
-        std::stringstream line;
+        stringstream line;
         line << i * samplingInterval;
-        for (std::size_t j = 0; j < fields.channels.size(); j++)
+        for (size_t j = 0; j < fields.channels.size(); j++)
         {
             if (channelIntervals[j] == 1)
             {
@@ -202,15 +204,15 @@ void NihonKohdenData::writeWaveformToCsv(const std::string &fileName) const
         }
         lines.push_back(line.str());
     }
-    std::cout << "\rProcessing complete. " << totalBlocks << " samples processed.\n";
+    cout << "\rProcessing complete. " << totalBlocks << " samples processed.\n";
 
     file.writeLines(lines);
     file.closeFile();
 
-    std::cout << "Waveform data written to " << fileName << std::endl;
+    cout << "Waveform data written to " << fileName << endl;
 }
 
-std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
 {
     switch (dataType)
     {
@@ -235,6 +237,6 @@ std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, D
     case DataType::AHA_8:
         return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
     default:
-        throw std::runtime_error("Invalid data type");
+        throw runtime_error("Invalid data type");
     }
 }
