@@ -107,62 +107,100 @@ EncodedString MFERData::getEncodedString(Encoding encoding) const
     return contents.toEncodedString(encoding);
 }
 
-Encoding MFERData::_getEncoding() const
+ByteOrder BLE::getByteOrder() const
 {
-    throw runtime_error("No encoding for this data type.");
+    return static_cast<ByteOrder>(contents[0]);
 }
 
-float MFERData::_getSamplingInterval() const
-{
-    throw runtime_error("No sampling interval for this data type.");
-}
-
-string MFERData::_getSamplingIntervalString() const
-{
-    throw runtime_error("No sampling interval for this data type.");
-}
-
-float MFERData::_getSamplingResolution() const
-{
-    throw runtime_error("No sampling resolution for this data type.");
-}
-
-vector<unique_ptr<MFERData>> MFERData::_getAttributes() const
-{
-    throw runtime_error("No attributes for this data type.");
-}
-
-Encoding TXC::_getEncoding() const
+Encoding TXC::getEncoding() const
 {
     return stringToEncoding(contents.toString());
 };
 
-float IVL::_getSamplingInterval() const
+uint8_t WFM::getWaveformType() const
+{
+    return contents[0];
+}
+
+string TIM::getMeasurementTime(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    tm timeStruct = {};
+    timeStruct.tm_year = dataStack.pop_value<uint16_t>(byteOrder) - 1900;
+    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mday = dataStack.pop_byte();
+    timeStruct.tm_hour = dataStack.pop_byte();
+    timeStruct.tm_min = dataStack.pop_byte();
+    timeStruct.tm_sec = dataStack.pop_byte();
+    ostringstream stream;
+    stream << put_time(&timeStruct, "%Y-%m-%dT%H:%M:%S");
+    return stream.str();
+}
+
+string AGE::getBirthDate(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    uint8_t years = dataStack.pop_byte();
+    if (years != 0xFF)
+    {
+        stringstream stream;
+        stream << (int)years << " years, " << (int)dataStack.pop_value<uint16_t>(byteOrder) << " days";
+        return stream.str();
+    }
+    dataStack.pop_front(2);
+    uint16_t year = dataStack.pop_value<uint16_t>(byteOrder);
+    if (year == 0xffff)
+    {
+        return "N/A";
+    }
+    tm timeStruct = {};
+    timeStruct.tm_year = year - 1900;
+    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mday = dataStack.pop_byte();
+    ostringstream stream;
+    stream << put_time(&timeStruct, "%Y-%m-%d");
+    return stream.str();
+}
+
+string SEX::getPatientSex() const
+{
+    return contents[0] == 0x00   ? "Unknown"
+           : contents[0] == 0x01 ? "Male"
+           : contents[0] == 0x02 ? "Female"
+                                 : "Other";
+}
+
+float IVL::getSamplingInterval() const
 {
     int base = contents[2];
     int exponent = contents[1] - 256;
     return base * pow(10, exponent);
 }
 
-string IVL::_getSamplingIntervalString() const
+string IVL::getSamplingIntervalString() const
 {
     ostringstream stream;
-    stream << (int)contents[2] << "×10^" << (int)contents[1] - 256 << " (s)";
+    stream << (int)contents[2] << "x10^" << (int)contents[1] - 256 << " (s)";
     return stream.str();
+}
+
+NIBPEvent EVT::getNIBPEvent(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    NIBPEvent event;
+    event.eventCode = dataStack.pop_value<uint16_t>(byteOrder);
+    event.startTime = dataStack.pop_value<uint32_t>(byteOrder);
+    event.duration = dataStack.pop_value<uint16_t>(byteOrder);
+    event.information = dataStack.pop_front(54).toString();
+    return event;
 }
 
 ATT::ATT(DataStack *dataStack)
 {
-    channel = dataStack->pop_byte();
+    channelIndex = dataStack->pop_byte();
     length = dataStack->pop_byte();
     contents = dataStack->pop_front(length);
-    attributes = parseMFERDataCollection(contents);
-}
-
-vector<unique_ptr<MFERData>> ATT::_getAttributes() const
-{
-    vector<unique_ptr<MFERData>> collection = parseMFERDataCollection(contents);
-    return collection;
+    attributes = getAttributes();
 }
 
 string ATT::contentsString(string left) const
@@ -180,13 +218,40 @@ string ATT::contentsString(string left) const
     return stream.str();
 }
 
-float SEN::_getSamplingResolution() const
+vector<unique_ptr<MFERData>> ATT::getAttributes() const
 {
-    DataStack dataStack(contents);
-    dataStack.pop_front();
-    int exponent = 256 - (int)dataStack.pop_byte();
-    int base = dataStack.pop_bytes<uint16_t>(2);
-    return base * pow(10, exponent);
+    return parseMFERDataCollection(contents);
+}
+
+Channel ATT::getChannel(ByteOrder byteOrder) const
+{
+    const vector<unique_ptr<MFERData>> channelAttributes = getAttributes();
+    Channel channel;
+    for (const auto &attribute : channelAttributes)
+    {
+        if (LDN *ldn = dynamic_cast<LDN *>(attribute.get()))
+        {
+            channel.leadInfo = ldn->getLeadInfo(byteOrder);
+        }
+        else if (DTP *dtp = dynamic_cast<DTP *>(attribute.get()))
+        {
+            channel.dataType = dtp->getDataType();
+        }
+        else if (BLK *blk = dynamic_cast<BLK *>(attribute.get()))
+        {
+            channel.blockLength = blk->getContents().toInt<uint32_t>(byteOrder);
+        }
+        else if (IVL *ivl = dynamic_cast<IVL *>(attribute.get()))
+        {
+            channel.samplingInterval = ivl->getSamplingInterval();
+            channel.samplingIntervalString = ivl->getSamplingIntervalString();
+        }
+        else if (SEN *sen = dynamic_cast<SEN *>(attribute.get()))
+        {
+            channel.samplingResolution = sen->getSamplingResolution();
+        }
+    }
+    return channel;
 }
 
 WAV::WAV(DataStack *dataStack)
@@ -204,4 +269,23 @@ END::END(DataStack *dataStack)
 string END::contentsString(string left) const
 {
     return "| End of file.";
+}
+
+LeadInfo LDN::getLeadInfo(ByteOrder byteOrder) const
+{
+    return LeadMap.at(static_cast<Lead>(contents.toInt<uint16_t>(byteOrder)));
+}
+
+DataType DTP::getDataType() const
+{
+    return static_cast<DataType>(contents[0]);
+}
+
+float SEN::getSamplingResolution() const
+{
+    DataStack dataStack(contents);
+    dataStack.pop_front();
+    int exponent = 256 - (int)dataStack.pop_byte();
+    int base = dataStack.pop_bytes<uint16_t>(2);
+    return base * pow(10, exponent);
 }

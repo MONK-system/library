@@ -44,7 +44,7 @@ public:
     EncodedString toEncodedString(Encoding encoding) const; // Converts the byte vector to an EncodedString using the specified encoding
 
     template <typename T>
-    inline T toInt(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
+    inline T toInt(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG) const
     {
         static_assert(is_integral<T>::value || is_floating_point<T>::value, "Return type must be an integral or floating-point type.");
         if (this->size() > sizeof(T))
