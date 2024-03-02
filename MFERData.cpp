@@ -1,3 +1,6 @@
+#include "MFERData.h"
+#include "DataStack.h"
+#include "MFERDataCollection.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -5,17 +8,12 @@
 #include <vector>
 #include <type_traits>
 #include <cmath>
-#include "MFERData.h"
-#include "DataStack.h"
-#include "MFERDataCollection.h"
 
 using namespace std;
 
-int MFERData::maxByteLength = 100;
-
 unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
 {
-    unsigned char byte = dataStack->pop_byte();
+    uint8_t byte = dataStack->pop_byte();
 
     switch (byte)
     {
@@ -187,7 +185,7 @@ float SEN::_getSamplingResolution() const
     DataStack dataStack(contents);
     dataStack.pop_front();
     int exponent = 256 - (int)dataStack.pop_byte();
-    int base = dataStack.pop_bytes<unsigned short>(2);
+    int base = dataStack.pop_bytes<uint16_t>(2);
     return base * pow(10, exponent);
 }
 

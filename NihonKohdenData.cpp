@@ -1,8 +1,4 @@
 #include "NihonKohdenData.h"
-#include "MFERData.h"
-#include "ByteVector.h"
-#include "DataStack.h"
-#include "FileManager.h"
 #include <iostream>
 #include <cstdint>
 #include <sstream>

@@ -1,7 +1,7 @@
-#include <iostream>
-#include <sstream>
 #include "MFERDataCollection.h"
 #include "MFERData.h"
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -10,7 +10,7 @@ MFERDataCollection::MFERDataCollection(ByteVector dataVector)
     mferDataVector = parseMFERDataCollection(dataVector);
 }
 
-string MFERDataCollection::toString(int maxByteLength) const
+string MFERDataCollection::toString(uint64_t maxByteLength) const
 {
     MFERData::maxByteLength = maxByteLength;
     return collectionToString(&mferDataVector, "");

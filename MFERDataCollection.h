@@ -1,10 +1,10 @@
 #ifndef MFERDATACOLLECTION_H
 #define MFERDATACOLLECTION_H
 
-#include <vector>
 #include "MFERDataCollection.h"
 #include "MFERData.h"
 #include "DataStack.h"
+#include <vector>
 
 using namespace std;
 
@@ -21,7 +21,7 @@ public:
         return mferDataVector;
     };
     inline size_t size() const { return mferDataVector.size(); };
-    string toString(int maxByteLength = 100) const;
+    string toString(uint64_t maxByteLength = 100) const;
 
 private:
     vector<unique_ptr<MFERData>> mferDataVector;

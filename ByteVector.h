@@ -78,7 +78,7 @@ public:
 
         for (int i = (sizeof(T) - 1) * 8; i >= 0; i -= 8)
         {
-            unsigned char byte = (value >> i) & 0xFF;
+            uint8_t byte = (value >> i) & 0xFF;
             if (byte != 0 || !leadingZero)
             {
                 byteVector.push_back(byte);

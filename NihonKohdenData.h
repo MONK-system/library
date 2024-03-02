@@ -1,14 +1,14 @@
 #ifndef NIHONKOHDENDATA_H
 #define NIHONKOHDENDATA_H
 
-#include <variant>
-#include <cstdint>
-#include <vector>
-#include <map>
 #include "MFERDataCollection.h"
 #include "MFERData.h"
 #include "FileManager.h"
 #include "ByteVector.h"
+#include <variant>
+#include <cstdint>
+#include <vector>
+#include <map>
 
 using namespace std;
 
@@ -252,7 +252,7 @@ const map<Lead, LeadInfo>
 
 // Data Type (Tag of content of MWF_DTP field) codes in order of documentation.
 // (OF NOTE, "16 bit signed integer 0 to 65535" has been named Int_16_U, aka "unsigned")
-enum class DataType : unsigned char // 1 byte
+enum class DataType : uint8_t // 1 byte
 {
     INT_16_S = 0x00,  // 16 bit signed integer -32768 to 32767
     INT_16_U = 0x01,  // 16 bit signed integer 0 to 65535 (documented as signed)
@@ -285,8 +285,8 @@ struct DataFields
     wstring preamble;
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
     EncodedString modelInfo;
-    unsigned short longwaveformType; // Unsure of encoding
-    string time;                     // TODO: Implement time format
+    uint16_t longwaveformType; // Unsure of encoding
+    string time;               // TODO: Implement time format
     EncodedString patientID;
     EncodedString patientName;
     string birthDate; // TODO: Implement birth date / age format

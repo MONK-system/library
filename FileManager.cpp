@@ -1,6 +1,5 @@
 #include "FileManager.h"
-#include "ByteVector.h"
-#include <iostream> // For error logging
+#include <iostream>
 
 using namespace std;
 
@@ -59,7 +58,7 @@ ByteVector FileManager::readBinaryFile(const string &fileName)
 
     // Read file length
     file.seekg(0, ios::end);
-    unsigned long long length = file.tellg();
+    uint64_t length = file.tellg();
     file.seekg(0, ios::beg);
 
     // Assign bytes to vector
