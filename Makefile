@@ -33,12 +33,12 @@ clean:
 
 # Test for single file
 # Default filename
-INPUTFILE ?= ./test-file.MWF
-OUTPUTFILE ?= ./output.csv
+in ?= ./test-file.MWF
+out ?= ./output.csv
 
 # Test target
 test: $(TARGET)
-	./$(TARGET) -i $(INPUTFILE) -o $(OUTPUTFILE)
+	./$(TARGET) -i "$(in)" -o "$(out)"
 
 # Define a rule that compiles and then tests the application
 all: $(TARGET) test
