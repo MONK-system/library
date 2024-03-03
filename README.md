@@ -11,7 +11,7 @@ As of this commit, running the program will take an input MWF file, print the da
 ### Prerequisites
 
 - g++
-- make
+- CMake
 
 #### For graphing script (graph.py)
 
@@ -24,36 +24,32 @@ As of this commit, running the program will take an input MWF file, print the da
 
 #### Compile
 
+Create a directory called build in the project root directory
+
+Inside the build directory, run cmake on the project directory:
+```
+cmake ..
+```
+Then build the project with:
+
 ```
 make
 ```
 
-Compiles the application to an "out" executable (out.exe on Windows).
+Compiles the application to Library.app.
 
 #### Running the executable
 
 ```
-./out -i {input-file} -o {output-file}
+./Library.app -i {input-file} -o {output-file}
 ```
 
-Runs the application with a given file. (`./out -i ./test-file.MWF -o ./output.csv` for example)
+Runs the application with a given file. (`./Library.app -i ./test-file.MWF -o ./output.csv` for example)
 
-#### Other make rules
-
-```
-make test [in={input-file}] [out={output-file}]
-make all [in={input-file}] [out={output-file}]
-```
-
-For example: `make test in=./data.MWF out=./out.csv`
-
-`test` runs the application with a given input and output.
-`all` compiles and runs the application with a given file, given changes to source code. These rules are mostly used for development.
-
-If left empty, the variables will default to `in=./test-file.MWF` & `out=./output.csv`
+### Other CMake rules
 
 ```
-make clean
+rm -rf build/
 ```
+Then repeat earlier steps to make a new build.
 
-Cleans compilation files (out and .o files).
