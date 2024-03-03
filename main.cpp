@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     {
         cerr << "Output filename is required." << endl;
         cerr << "Usage: " << argv[0] << " -i <InputFilename> -o <OutputFilename>" << endl;
+        return 1;
     }
 
     try
