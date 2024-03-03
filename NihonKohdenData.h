@@ -30,8 +30,6 @@ struct DataFields
     vector<Channel> channels;
 };
 
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG);
-
 class NihonKohdenData
 {
 public:

@@ -11,6 +11,8 @@ NihonKohdenData::NihonKohdenData(ByteVector dataVector)
     fields = collectDataFields(collection.getMFERDataVector());
 }
 
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType); // Forward declaration
+
 DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
 {
     DataFields fields;
@@ -89,7 +91,7 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
             DataStack waveformDataStack(wav->getContents());
             for (auto &channel : fields.channels)
             {
-                channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType, fields.byteOrder);
+                channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
             }
         }
         else if (data->getTag() == END::tag)
@@ -208,30 +210,30 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
     cout << "Complete." << endl;
 }
 
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType)
 {
     switch (dataType)
     {
     case DataType::INT_16_S:
-        return waveformDataStack.pop_doubles<int16_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<int16_t>(num);
     case DataType::INT_16_U:
-        return waveformDataStack.pop_doubles<uint16_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<uint16_t>(num);
     case DataType::INT_32_S:
-        return waveformDataStack.pop_doubles<int32_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<int32_t>(num);
     case DataType::INT_8_U:
-        return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<uint8_t>(num);
     case DataType::STATUS_16:
-        return waveformDataStack.pop_doubles<uint16_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<uint16_t>(num);
     case DataType::INT_8_S:
-        return waveformDataStack.pop_doubles<int8_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<int8_t>(num);
     case DataType::INT_32_U:
-        return waveformDataStack.pop_doubles<uint32_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<uint32_t>(num);
     case DataType::FLOAT_32:
-        return waveformDataStack.pop_doubles<float>(num, byteOrder);
+        return waveformDataStack.pop_doubles<float>(num);
     case DataType::FLOAT_64:
-        return waveformDataStack.pop_doubles<double>(num, byteOrder);
+        return waveformDataStack.pop_doubles<double>(num);
     case DataType::AHA_8:
-        return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
+        return waveformDataStack.pop_doubles<uint8_t>(num);
     default:
         throw runtime_error("Invalid data type");
     }
