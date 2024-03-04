@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
 import plotly.graph_objects as go
+import numpy as np
 
 # Initialize the parser
 parser = argparse.ArgumentParser(description='Plot CSV data')
@@ -20,14 +21,24 @@ number_of_rows = 10000
 # Read the CSV file, specifying the number of rows to read
 df = pd.read_csv(csv_file_path, nrows=number_of_rows)
 
+# Convert all columns to numeric, coercing errors to NaN (non-numeric values will become NaN)
+df = df.apply(pd.to_numeric, errors='coerce')
+
+# Interpolate missing data
+df.interpolate(method='linear', limit_direction='forward',
+               axis=0, inplace=True)
+
+# Drop any remaining NaNs or infs
+df.replace([np.inf, -np.inf], np.nan, inplace=True)
+df.dropna(inplace=True)
+
 # Create a Plotly Graph Objects figure
 fig = go.Figure()
 
 # Add a line for each measurement column, excluding 'Time (s)'
-# Skip 'Time (s)' which is assumed to be the first column
 for column in df.columns[1:]:
     fig.add_trace(go.Scatter(x=df['Time: (s)'],
-                  y=df[column], mode='lines', name=column))
+                             y=df[column], mode='lines', name=column))
 
 # Update layout with titles and adjust other layout elements
 fig.update_layout(title='Measurements Over Time (Limited Data)',
