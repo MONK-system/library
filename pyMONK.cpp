@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(pyMONK, m)
+PYBIND11_MODULE(monkLib, m)
 {
     py::class_<NIBPEvent>(m, "NIBPEvent")
         .def_readonly("eventCode", &NIBPEvent::eventCode)
