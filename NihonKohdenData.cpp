@@ -8,14 +8,19 @@ using namespace std;
 NihonKohdenData::NihonKohdenData(ByteVector dataVector)
 {
     collection = MFERDataCollection(dataVector);
-    fields = collectDataFields(collection.getMFERDataVector());
+    header = collectDataFields(collection.getMFERDataVector());
+}
+
+Header NihonKohdenData::getHeader() const
+{
+    return header;
 }
 
 vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType); // Forward declaration
 
-DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
+Header NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
 {
-    DataFields fields;
+    Header header;
 
     Encoding encoding = Encoding::UTF8;
 
@@ -23,11 +28,11 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
     {
         if (PRE *pre = dynamic_cast<PRE *>(data.get()))
         {
-            fields.preamble = pre->getContents().toString();
+            header.preamble = pre->toString();
         }
         else if (BLE *ble = dynamic_cast<BLE *>(data.get()))
         {
-            fields.byteOrder = ble->getByteOrder();
+            header.byteOrder = ble->getByteOrder();
         }
         else if (TXC *txc = dynamic_cast<TXC *>(data.get()))
         {
@@ -35,48 +40,48 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
         }
         else if (MAN *man = dynamic_cast<MAN *>(data.get()))
         {
-            fields.modelInfo = man->getContents().toEncodedString(encoding);
+            header.modelInfo = man->toString(encoding);
         }
         else if (WFM *wfm = dynamic_cast<WFM *>(data.get()))
         {
-            fields.waveformType = wfm->getWaveformType();
+            header.waveformType = wfm->getWaveformType();
         }
         else if (TIM *tim = dynamic_cast<TIM *>(data.get()))
         {
-            fields.measurementTimeISO = tim->getMeasurementTime(fields.byteOrder);
+            header.measurementTimeISO = tim->getMeasurementTime(header.byteOrder);
         }
         else if (PID *pid = dynamic_cast<PID *>(data.get()))
         {
-            fields.patientID = pid->getContents().toEncodedString(encoding);
+            header.patientID = pid->toString(encoding);
         }
         else if (PNM *pnm = dynamic_cast<PNM *>(data.get()))
         {
-            fields.patientName = pnm->getContents().toEncodedString(encoding);
+            header.patientName = pnm->toString(encoding);
         }
         else if (AGE *age = dynamic_cast<AGE *>(data.get()))
         {
-            fields.birthDateISO = age->getBirthDate(fields.byteOrder);
+            header.birthDateISO = age->getBirthDate(header.byteOrder);
         }
         else if (SEX *sex = dynamic_cast<SEX *>(data.get()))
         {
-            fields.patientSex = sex->getPatientSex();
+            header.patientSex = sex->getPatientSex();
         }
         else if (IVL *ivl = dynamic_cast<IVL *>(data.get()))
         {
-            fields.samplingInterval = ivl->getSamplingInterval();
-            fields.samplingIntervalString = ivl->getSamplingIntervalString();
+            header.samplingInterval = ivl->getSamplingInterval();
+            header.samplingIntervalString = ivl->getSamplingIntervalString();
         }
         else if (EVT *evt = dynamic_cast<EVT *>(data.get()))
         {
-            fields.events.push_back(evt->getNIBPEvent(fields.byteOrder));
+            header.events.push_back(evt->getNIBPEvent(header.byteOrder));
         }
         else if (SEQ *seq = dynamic_cast<SEQ *>(data.get()))
         {
-            fields.sequenceCount = seq->getContents().toInt<uint16_t>(fields.byteOrder);
+            header.sequenceCount = seq->getContents().toInt<uint16_t>(header.byteOrder);
         }
         else if (CHN *chn = dynamic_cast<CHN *>(data.get()))
         {
-            fields.channelCount = chn->getContents()[0];
+            header.channelCount = chn->getContents()[0];
         }
         else if (data->getTag() == NUL::tag)
         {
@@ -84,14 +89,14 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
         }
         else if (ATT *att = dynamic_cast<ATT *>(data.get()))
         {
-            fields.channels.push_back(att->getChannel(fields.byteOrder));
+            header.channels.push_back(att->getChannel(header.byteOrder));
         }
         else if (WAV *wav = dynamic_cast<WAV *>(data.get()))
         {
             DataStack waveformDataStack(wav->getContents());
-            for (auto &channel : fields.channels)
+            for (auto &channel : header.channels)
             {
-                channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
+                channel.data = popChannelData(waveformDataStack, channel.blockLength * header.sequenceCount, channel.dataType);
             }
         }
         else if (data->getTag() == END::tag)
@@ -103,7 +108,7 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
             cerr << "Unknown tag: " << data->getTag() << endl;
         }
     }
-    return fields;
+    return header;
 }
 
 void NihonKohdenData::printData() const
@@ -115,59 +120,59 @@ void NihonKohdenData::printData() const
 void NihonKohdenData::printDataFields() const
 {
     cout << "\nData Fields: \n";
-    cout << "Preamble: " << fields.preamble << endl;
-    cout << "Byte Order: " << (fields.byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
-    wcout << L"Model Info: " << fields.modelInfo.str << endl;
-    cout << "Measurement Time: " << fields.measurementTimeISO << endl;
-    wcout << L"Patient ID: " << fields.patientID.str << endl;
-    wcout << L"Patient Name: " << fields.patientName.str << endl;
-    cout << "Birth Date: " << fields.birthDateISO << endl;
-    cout << "Patient Sex: " << fields.patientSex << endl;
-    cout << "Sampling Interval: " << fields.samplingIntervalString << endl;
-    cout << "NIBP Events: " << fields.events.size() << endl;
-    cout << "Sequence Count: " << (int)fields.sequenceCount << endl;
-    cout << "Channel Count: " << (int)fields.channelCount << endl;
-    for (const auto &channel : fields.channels)
+    cout << "Preamble: " << header.preamble << endl;
+    cout << "Byte Order: " << (header.byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
+    cout << "Model Info: " << header.modelInfo << endl;
+    cout << "Measurement Time: " << header.measurementTimeISO << endl;
+    cout << "Patient ID: " << header.patientID << endl;
+    cout << "Patient Name: " << header.patientName << endl;
+    cout << "Birth Date: " << header.birthDateISO << endl;
+    cout << "Patient Sex: " << header.patientSex << endl;
+    cout << "Sampling Interval: " << header.samplingIntervalString << endl;
+    cout << "NIBP Events: " << header.events.size() << endl;
+    cout << "Sequence Count: " << (int)header.sequenceCount << endl;
+    cout << "Channel Count: " << (int)header.channelCount << endl;
+    for (const auto &channel : header.channels)
     {
-        cout << "Channel: " << channel.leadInfo.parameterName << endl;
+        cout << "Channel: " << channel.leadInfo.attribute << endl;
         cout << "   Block Length: " << channel.blockLength << endl;
         cout << "   Sampling Resolution: " << channel.leadInfo.samplingResolution << endl;
     }
 }
 
-void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
+void NihonKohdenData::writeToCsv(const string &fileName) const
 {
     cout << "\nWriting waveform data to " << fileName << endl;
     FileManager file(fileName);
 
     // Write csv header & get lowest sampling interval
-    stringstream channelsHeader;
+    stringstream channelsStream;
     uint32_t largestBlockLength = 0;
-    double samplingInterval = fields.samplingInterval;
-    for (auto channel : fields.channels)
+    double samplingInterval = header.samplingInterval;
+    for (auto channel : header.channels)
     {
-        channelsHeader << ", " << channel.leadInfo.parameterName << ": " << channel.leadInfo.samplingResolution;
+        channelsStream << ", " << channel.leadInfo.attribute << ": " << channel.leadInfo.samplingResolution;
         if (channel.blockLength > largestBlockLength)
         {
             largestBlockLength = channel.blockLength;
             samplingInterval = channel.samplingInterval;
         }
     }
-    stringstream header;
-    header << "Time: "
-           << "(s)" << channelsHeader.str();
+    stringstream headerStream;
+    headerStream << "Time: "
+                 << "(s)" << channelsStream.str();
 
-    file.writeLine(header.str()); // Write header to file
+    file.writeLine(headerStream.str()); // Write header to file
 
     // Write waveform data
     vector<string> lines;
-    uint64_t totalBlocks = fields.sequenceCount * largestBlockLength;
+    uint64_t totalBlocks = header.sequenceCount * largestBlockLength;
     lines.reserve(totalBlocks);
 
-    int channelIntervals[fields.channels.size()];
-    for (size_t i = 0; i < fields.channels.size(); i++)
+    int channelIntervals[header.channels.size()];
+    for (size_t i = 0; i < header.channels.size(); i++)
     {
-        channelIntervals[i] = largestBlockLength / fields.channels[i].blockLength;
+        channelIntervals[i] = largestBlockLength / header.channels[i].blockLength;
     }
 
     int loggingInterval = 1000;
@@ -181,18 +186,18 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
 
         stringstream line;
         line << i * samplingInterval;
-        for (size_t j = 0; j < fields.channels.size(); j++)
+        for (size_t j = 0; j < header.channels.size(); j++)
         {
             if (channelIntervals[j] == 1)
             {
-                line << ", " << fields.channels[j].data[i];
+                line << ", " << header.channels[j].data[i];
             }
             else
             {
                 // If i * (channel.blockLength/largestBlocklength) is an integer, then write the value
                 if (i % channelIntervals[j] == 0)
                 {
-                    line << ", " << fields.channels[j].data[i / channelIntervals[j]];
+                    line << ", " << header.channels[j].data[i / channelIntervals[j]];
                 }
                 else
                 {

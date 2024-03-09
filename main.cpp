@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
         nihonKohdenData.printData();
         nihonKohdenData.printDataFields();
-        nihonKohdenData.writeWaveformToCsv(outputFilename);
+        nihonKohdenData.writeToCsv(outputFilename);
     }
     catch (const exception &e)
     {
