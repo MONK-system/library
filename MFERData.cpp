@@ -1,3 +1,6 @@
+#include "MFERData.h"
+#include "DataStack.h"
+#include "MFERDataCollection.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -5,65 +8,61 @@
 #include <vector>
 #include <type_traits>
 #include <cmath>
-#include "MFERData.h"
-#include "HexVector.h"
-#include "DataStack.h"
-#include "MFERDataCollection.h"
 
-int MFERData::maxByteLength = 100;
+using namespace std;
 
-std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
+unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
 {
-    unsigned char byte = dataStack->pop_byte();
+    uint8_t byte = dataStack->pop_byte();
 
     switch (byte)
     {
     case PRE::tag:
-        return std::make_unique<PRE>(dataStack);
+        return make_unique<PRE>(dataStack);
     case BLE::tag:
-        return std::make_unique<BLE>(dataStack);
+        return make_unique<BLE>(dataStack);
     case TXC::tag:
-        return std::make_unique<TXC>(dataStack);
+        return make_unique<TXC>(dataStack);
     case MAN::tag:
-        return std::make_unique<MAN>(dataStack);
+        return make_unique<MAN>(dataStack);
     case WFM::tag:
-        return std::make_unique<WFM>(dataStack);
+        return make_unique<WFM>(dataStack);
     case TIM::tag:
-        return std::make_unique<TIM>(dataStack);
+        return make_unique<TIM>(dataStack);
     case PID::tag:
-        return std::make_unique<PID>(dataStack);
+        return make_unique<PID>(dataStack);
     case PNM::tag:
-        return std::make_unique<PNM>(dataStack);
+        return make_unique<PNM>(dataStack);
     case AGE::tag:
-        return std::make_unique<AGE>(dataStack);
+        return make_unique<AGE>(dataStack);
     case SEX::tag:
-        return std::make_unique<SEX>(dataStack);
+        return make_unique<SEX>(dataStack);
     case IVL::tag:
-        return std::make_unique<IVL>(dataStack);
+        return make_unique<IVL>(dataStack);
     case EVT::tag:
-        return std::make_unique<EVT>(dataStack);
+        return make_unique<EVT>(dataStack);
     case SEQ::tag:
-        return std::make_unique<SEQ>(dataStack);
+        return make_unique<SEQ>(dataStack);
     case CHN::tag:
-        return std::make_unique<CHN>(dataStack);
+        return make_unique<CHN>(dataStack);
     case NUL::tag:
-        return std::make_unique<NUL>(dataStack);
+        return make_unique<NUL>(dataStack);
     case ATT::tag:
-        return std::make_unique<ATT>(dataStack);
+        return make_unique<ATT>(dataStack);
     case WAV::tag:
-        return std::make_unique<WAV>(dataStack);
+        return make_unique<WAV>(dataStack);
     case END::tag:
-        return std::make_unique<END>(dataStack);
+        return make_unique<END>(dataStack);
     case LDN::tag:
-        return std::make_unique<LDN>(dataStack);
+        return make_unique<LDN>(dataStack);
     case DTP::tag:
-        return std::make_unique<DTP>(dataStack);
+        return make_unique<DTP>(dataStack);
     case BLK::tag:
-        return std::make_unique<BLK>(dataStack);
+        return make_unique<BLK>(dataStack);
     case SEN::tag:
-        return std::make_unique<SEN>(dataStack);
+        return make_unique<SEN>(dataStack);
     default:
-        throw std::invalid_argument("Invalid tag (int): " + (int)byte);
+        throw invalid_argument("Invalid tag (int): " + (int)byte);
     }
 }
 
@@ -73,93 +72,143 @@ MFERData::MFERData(DataStack *dataStack)
     contents = dataStack->pop_front(length);
 }
 
-std::string MFERData::toString(std::string left) const
+string MFERData::toString(string left) const
 {
-    std::string tagStr = tagString();
-    std::string lengthStr = lengthString();
-    std::string contentsStr = contentsString(left);
+    string tagStr = tagString();
+    string lengthStr = lengthString();
+    string contentsStr = contentsString(left);
 
-    std::ostringstream output;
-    output << left << "| " << std::setw(5) << std::setfill(' ') << tagStr << " | " << std::setw(11) << std::setfill(' ') << lengthStr << " " << contentsStr;
+    ostringstream output;
+    output << left << "| " << setw(5) << setfill(' ') << tagStr << " | " << setw(11) << setfill(' ') << lengthStr << " " << contentsStr;
     return output.str();
 }
 
-std::string MFERData::contentsString(std::string left) const
+string MFERData::contentsString(string left) const
 {
-    std::ostringstream stream;
+    ostringstream stream;
     if (contents.size() > (size_t)maxByteLength)
     {
-        stream << std::string("| ...");
+        stream << string("| ...");
     }
     else
     {
-        stream << "| " << stringifyBytes(contents);
+        stream << "| " << contents.stringify();
     }
     return stream.str();
 }
 
-std::vector<unsigned char> MFERData::getContents() const
+ByteVector MFERData::getContents() const
 {
     return contents;
 }
 
 EncodedString MFERData::getEncodedString(Encoding encoding) const
 {
-    return convertToEncodedString(contents, encoding);
+    return contents.toEncodedString(encoding);
 }
 
-Encoding MFERData::_getEncoding() const
+ByteOrder BLE::getByteOrder() const
 {
-    throw std::runtime_error("No encoding for this data type.");
+    return static_cast<ByteOrder>(contents[0]);
 }
 
-float MFERData::_getSamplingInterval() const
+Encoding TXC::getEncoding() const
 {
-    throw std::runtime_error("No sampling interval for this data type.");
-}
-
-float MFERData::_getSamplingResolution() const
-{
-    throw std::runtime_error("No sampling resolution for this data type.");
-}
-
-std::vector<std::unique_ptr<MFERData>> MFERData::_getAttributes() const
-{
-    throw std::runtime_error("No attributes for this data type.");
-}
-
-Encoding TXC::_getEncoding() const
-{
-    return stringToEncoding(convertToString(contents));
+    return stringToEncoding(contents.toString());
 };
 
-float IVL::_getSamplingInterval() const
+uint8_t WFM::getWaveformType() const
+{
+    return contents[0];
+}
+
+string TIM::getMeasurementTime(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    tm timeStruct = {};
+    timeStruct.tm_year = dataStack.pop_value<uint16_t>(byteOrder) - 1900;
+    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mday = dataStack.pop_byte();
+    timeStruct.tm_hour = dataStack.pop_byte();
+    timeStruct.tm_min = dataStack.pop_byte();
+    timeStruct.tm_sec = dataStack.pop_byte();
+    ostringstream stream;
+    stream << put_time(&timeStruct, "%Y-%m-%dT%H:%M:%S");
+    return stream.str();
+}
+
+string AGE::getBirthDate(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    uint8_t years = dataStack.pop_byte();
+    if (years != 0xFF)
+    {
+        stringstream stream;
+        stream << (int)years << " years, " << (int)dataStack.pop_value<uint16_t>(byteOrder) << " days";
+        return stream.str();
+    }
+    dataStack.pop_front(2);
+    uint16_t year = dataStack.pop_value<uint16_t>(byteOrder);
+    if (year == 0xffff)
+    {
+        return "N/A";
+    }
+    tm timeStruct = {};
+    timeStruct.tm_year = year - 1900;
+    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mday = dataStack.pop_byte();
+    ostringstream stream;
+    stream << put_time(&timeStruct, "%Y-%m-%d");
+    return stream.str();
+}
+
+string SEX::getPatientSex() const
+{
+    return contents[0] == 0x00   ? "Unknown"
+           : contents[0] == 0x01 ? "Male"
+           : contents[0] == 0x02 ? "Female"
+                                 : "Other";
+}
+
+float IVL::getSamplingInterval() const
 {
     int base = contents[2];
     int exponent = contents[1] - 256;
-    return base * std::pow(10, exponent);
+    return base * pow(10, exponent);
+}
+
+string IVL::getSamplingIntervalString() const
+{
+    ostringstream stream;
+    stream << (int)contents[2] << "x10^" << (int)contents[1] - 256 << " (s)";
+    return stream.str();
+}
+
+NIBPEvent EVT::getNIBPEvent(ByteOrder byteOrder) const
+{
+    DataStack dataStack(contents);
+    NIBPEvent event;
+    event.eventCode = dataStack.pop_value<uint16_t>(byteOrder);
+    event.startTime = dataStack.pop_value<uint32_t>(byteOrder);
+    event.duration = dataStack.pop_value<uint16_t>(byteOrder);
+    event.information = dataStack.pop_front(54).toString();
+    return event;
 }
 
 ATT::ATT(DataStack *dataStack)
 {
-    channel = dataStack->pop_byte();
+    channelIndex = dataStack->pop_byte();
     length = dataStack->pop_byte();
     contents = dataStack->pop_front(length);
-    attributes = parseMFERDataCollection(contents);
+    attributes = getAttributes();
 }
 
-std::vector<std::unique_ptr<MFERData>> ATT::_getAttributes() const
+string ATT::contentsString(string left) const
 {
-    std::vector<std::unique_ptr<MFERData>> collection = parseMFERDataCollection(contents);
-    return collection;
-}
-
-std::string ATT::contentsString(std::string left) const
-{
-    std::ostringstream stream;
+    ostringstream stream;
     stream << headerString() << "\n"
            << left << spacerString() << sectionString();
-    std::ostringstream leftStream;
+    ostringstream leftStream;
     leftStream << left << spacerString();
     for (const auto &data : attributes)
     {
@@ -169,19 +218,46 @@ std::string ATT::contentsString(std::string left) const
     return stream.str();
 }
 
-float SEN::_getSamplingResolution() const
+vector<unique_ptr<MFERData>> ATT::getAttributes() const
 {
-    DataStack dataStack(contents);
-    dataStack.pop_front();
-    int exponent = 256 - (int)dataStack.pop_byte();
-    int base = dataStack.pop_bytes(2);
-    return base * std::pow(10, exponent);
+    return parseMFERDataCollection(contents);
+}
+
+Channel ATT::getChannel(ByteOrder byteOrder) const
+{
+    const vector<unique_ptr<MFERData>> channelAttributes = getAttributes();
+    Channel channel;
+    for (const auto &attribute : channelAttributes)
+    {
+        if (LDN *ldn = dynamic_cast<LDN *>(attribute.get()))
+        {
+            channel.leadInfo = ldn->getLeadInfo(byteOrder);
+        }
+        else if (DTP *dtp = dynamic_cast<DTP *>(attribute.get()))
+        {
+            channel.dataType = dtp->getDataType();
+        }
+        else if (BLK *blk = dynamic_cast<BLK *>(attribute.get()))
+        {
+            channel.blockLength = blk->getContents().toInt<uint32_t>(byteOrder);
+        }
+        else if (IVL *ivl = dynamic_cast<IVL *>(attribute.get()))
+        {
+            channel.samplingInterval = ivl->getSamplingInterval();
+            channel.samplingIntervalString = ivl->getSamplingIntervalString();
+        }
+        else if (SEN *sen = dynamic_cast<SEN *>(attribute.get()))
+        {
+            channel.samplingResolution = sen->getSamplingResolution();
+        }
+    }
+    return channel;
 }
 
 WAV::WAV(DataStack *dataStack)
 {
     wordLength = dataStack->pop_byte();
-    length = dataStack->pop_bytes(4);
+    length = dataStack->pop_bytes<unsigned>(4);
     contents = dataStack->pop_front(length);
 }
 
@@ -190,7 +266,26 @@ END::END(DataStack *dataStack)
     length = 0x00;
 }
 
-std::string END::contentsString(std::string left) const
+string END::contentsString(string left) const
 {
     return "| End of file.";
+}
+
+LeadInfo LDN::getLeadInfo(ByteOrder byteOrder) const
+{
+    return LeadMap.at(static_cast<Lead>(contents.toInt<uint16_t>(byteOrder)));
+}
+
+DataType DTP::getDataType() const
+{
+    return static_cast<DataType>(contents[0]);
+}
+
+float SEN::getSamplingResolution() const
+{
+    DataStack dataStack(contents);
+    dataStack.pop_front();
+    int exponent = 256 - (int)dataStack.pop_byte();
+    int base = dataStack.pop_bytes<uint16_t>(2);
+    return base * pow(10, exponent);
 }

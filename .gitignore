@@ -3,3 +3,9 @@
 *.exe
 *.bat
 *.o
+*.csv
+out
+# CMake build directory
+/build/
+*.app
+

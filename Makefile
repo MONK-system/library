@@ -14,7 +14,7 @@ else
 endif
 
 # List of source files
-SOURCES = main.cpp MFERData.cpp MFERDataCollection.cpp DataStack.cpp FileManager.cpp NihonKohdenData.cpp
+SOURCES = main.cpp MFERData.cpp MFERDataCollection.cpp DataStack.cpp FileManager.cpp NihonKohdenData.cpp ByteVector.cpp
 
 # Object files are the .cpp files, but with .o extensions
 OBJECTS = $(SOURCES:.cpp=.o)
@@ -33,11 +33,12 @@ clean:
 
 # Test for single file
 # Default filename
-FILE ?= ./test-file.MWF
+in ?= ./test-file.MWF
+out ?= ./output.csv
 
 # Test target
 test: $(TARGET)
-	./$(TARGET) -i $(FILE)
+	./$(TARGET) -i "$(in)" -o "$(out)"
 
 # Define a rule that compiles and then tests the application
 all: $(TARGET) test

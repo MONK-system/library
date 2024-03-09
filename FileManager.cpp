@@ -1,31 +1,33 @@
 #include "FileManager.h"
-#include <iostream> // For error logging
+#include <iostream>
 
-FileManager::FileManager(const std::string &outputFileName) : fileName(outputFileName), outputFormat("csv")
+using namespace std;
+
+FileManager::FileManager(const string &outputFileName) : fileName(outputFileName)
 {
-    outputFile.open(fileName);
+    outputFile.open(fileName, ios::out | ios::trunc);
     if (!outputFile.is_open())
     {
-        std::cerr << "Error opening output file: " << fileName << std::endl;
+        cerr << "Error opening output file: " << fileName << endl;
     }
 }
 
-void FileManager::setOutputFormat(const std::string &format)
-{
-    outputFormat = format;
-}
-
-void FileManager::writeLines(const std::vector<std::string> &lines)
+void FileManager::writeLine(const string &line)
 {
     if (!outputFile.is_open())
     {
-        std::cerr << "Output file is not open." << std::endl;
+        cerr << "Output file is not open." << endl;
         return;
     }
 
+    outputFile << line << endl;
+}
+
+void FileManager::writeLines(const vector<string> &lines)
+{
     for (const auto &line : lines)
     {
-        outputFile << line << std::endl;
+        writeLine(line);
     }
 }
 
@@ -45,25 +47,25 @@ FileManager::~FileManager()
 }
 
 // Implementation of readBinaryFile static method
-std::vector<unsigned char> FileManager::readBinaryFile(const std::string &fileName)
+ByteVector FileManager::readBinaryFile(const string &fileName)
 {
-    std::ifstream file(fileName, std::ios::binary);
+    ifstream file(fileName, ios::binary);
 
     if (!file.is_open())
     {
-        throw std::runtime_error("Error opening file.");
+        throw runtime_error("Error opening file.");
     }
 
     // Read file length
-    file.seekg(0, std::ios::end);
-    unsigned long long length = file.tellg();
-    file.seekg(0, std::ios::beg);
+    file.seekg(0, ios::end);
+    uint64_t length = file.tellg();
+    file.seekg(0, ios::beg);
 
     // Assign bytes to vector
-    std::vector<unsigned char> dataVector(length);
+    ByteVector dataVector(length);
     if (!file.read(reinterpret_cast<char *>(dataVector.data()), dataVector.size()))
     {
-        throw std::runtime_error("Error reading file.");
+        throw runtime_error("Error reading file.");
     }
     file.close();
 

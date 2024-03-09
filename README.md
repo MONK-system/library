@@ -1,18 +1,61 @@
 # MONK - MFER Library
 
-A library for management of Nihon-Kohden MFER data.
+A library for management of Nihon-Kohden MFER data, eventually with python bindings.
 
-At this current commit, the program parses binary files into collections of tags, length and content according to the specification, and prints it to the console:
+As of this commit, running the program will take an input MWF file, print the data & header, and write the formatted data in a csv, categorized by channel & ordered by time.
 
-![image](https://github.com/MONK-system/library/assets/102857059/007b2ade-048f-485f-a822-d97401aa0c80)
+![CSV output](img/csv-output.png)
 
-## Building & running the application
+## Building & running the application with CMake
+
 ### Prerequisites
+
+- g++
+- CMake
+
+#### Compile
+
+Create a directory called build in the project root directory
+
+Inside the build directory, run cmake on the project directory:
+
+```
+cmake ..
+```
+
+Then build the project with:
+
+```
+make
+```
+
+Compiles the application to Library.app.
+
+#### Running the executable
+
+```
+./Library.app -i {input-file} -o {output-file}
+```
+
+Runs the application with a given file. (`./Library.app -i ./test-file.MWF -o ./output.csv` for example)
+
+### Other CMake rules
+
+```
+rm -rf build/
+```
+
+Then repeat earlier steps to make a new build.
+
+## Building & running the application with CMake
+
+### Prerequisites
+
 - g++
 - make
 
-### From command-line
 #### Compile
+
 ```
 make
 ```
@@ -20,35 +63,48 @@ make
 Compiles the application to an "out" executable (out.exe on Windows).
 
 #### Running the executable
+
 ```
-./out -i {file}
+./out -i {input-file} -o {output-file}
 ```
 
-Runs the application with a given file. (```./out -i ./test-file.MWF``` for example)
+Runs the application with a given file. (`./out -i ./test-file.MWF -o ./output.csv` for example)
 
 #### Other make rules
-```
-make test
-```
 
 ```
-make test FILE={file}
+make test [in={input-file}] [out={output-file}]
+make all [in={input-file}] [out={output-file}]
 ```
 
-Runs the application with a given file. By default, FILE = ./test-file.MWF.
+For example: `make test in=./data.MWF out=./out.csv`
 
-```
-make all
-```
+`test` runs the application with a given input and output.
+`all` compiles and runs the application with a given file, given changes to source code. These rules are mostly used for development.
 
-```
-make all FILE={file}
-```
-
-Compiles and runs the application with a given file, given changes to source code. By default, FILE = ./test-file.MWF. Mainly used for development.
+If left empty, the variables will default to `in=./test-file.MWF` & `out=./output.csv`
 
 ```
 make clean
 ```
 
 Cleans compilation files (out and .o files).
+
+## Graphing the output
+
+### Prerequisites
+
+- python
+  - pandas
+  - plotly
+  - pyarrow
+
+### From command-line
+
+```
+python ./graph.py {data} [--sub]
+```
+
+For example: `python ./graph.py ./output.csv --sub`. Creates subplot figure. Without the `--sub` flag, a combined plot is created.
+
+Creates a combined plot or subplots of the csv data. Currently, the plots are limited to 10 000 lines (in graph.py), for optimization.
