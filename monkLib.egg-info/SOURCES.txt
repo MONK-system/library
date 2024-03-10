@@ -1,0 +1,7 @@
+README.md
+setup.py
+monkLib.egg-info/PKG-INFO
+monkLib.egg-info/SOURCES.txt
+monkLib.egg-info/dependency_links.txt
+monkLib.egg-info/not-zip-safe
+monkLib.egg-info/top_level.txt

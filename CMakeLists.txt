@@ -2,31 +2,27 @@ cmake_minimum_required(VERSION 3.5...3.26)
 project(monkLib LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Include pybind11
 add_subdirectory(pybind11)
 
-# Add source files here
 set(SOURCES
-    pyMONK.cpp
-    MFERData.cpp
-    MFERDataCollection.cpp
-    DataStack.cpp
-    FileManager.cpp
-    NihonKohdenData.cpp
-    ByteVector.cpp
+    src/pyMONK.cpp
+    src/MFERData.cpp
+    src/MFERDataCollection.cpp
+    src/DataStack.cpp
+    src/FileManager.cpp
+    src/NihonKohdenData.cpp
+    src/ByteVector.cpp
 )
 
-# Add header files here
 set(HEADERS
-    ByteVector.h
-    DataStack.h
-    FileManager.h
-    MFERData.h
-    MFERDataCollection.h
-    NihonKohdenData.h
+    src/ByteVector.h
+    src/DataStack.h
+    src/FileManager.h
+    src/MFERData.h
+    src/MFERDataCollection.h
+    src/NihonKohdenData.h
 )
 
 # Define module
