@@ -40,8 +40,7 @@ class CMakeBuild(build_ext):
             cmake_args += ['-G', 'MinGW Makefiles']
 
         else:
-            # This will use the default Unix Makefiles on Linux
-            build_args += ['--', '-j' + num_cores]
+            pass
 
         os.makedirs(self.build_temp, exist_ok=True)
         subprocess.check_call(['cmake', ext.sourcedir] +
