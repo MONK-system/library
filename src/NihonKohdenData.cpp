@@ -119,7 +119,7 @@ void NihonKohdenData::printData() const
 
 void NihonKohdenData::printHeader() const
 {
-    cout << "\nData Fields: \n";
+    cout << "\nHeader: \n";
     cout << "Preamble: " << header.preamble << endl;
     cout << "Byte Order: " << (header.byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
     cout << "Model Info: " << header.modelInfo << endl;

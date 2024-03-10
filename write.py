@@ -1,3 +1,4 @@
+# Write the data from a MFER file to another CSV file
 import monkLib
 import argparse
 

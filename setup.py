@@ -52,8 +52,8 @@ class CMakeBuild(build_ext):
 setup(
     name='monkLib',
     version='0.0.1',
-    author='Your Name',
-    description='A test package with a CMake extension',
+    author='Sondre Espeland',
+    description='A Python package for reading Nihon Kohden data',
     long_description='',
     ext_modules=[CMakeExtension('monkLib', sourcedir='.')],
     cmdclass=dict(build_ext=CMakeBuild),
