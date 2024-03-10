@@ -41,5 +41,7 @@ PYBIND11_MODULE(monkLib, m)
         .def(py::init<const string &>())
         .def("getHeader", &NihonKohdenData::getHeader,
              py::return_value_policy::copy, "Get the header of the data")
+        .def("printData", &NihonKohdenData::printData, "Print the data in hex format")
+        .def("printHeader", &NihonKohdenData::printHeader, "Print the header")
         .def("writeToCsv", &NihonKohdenData::writeToCsv);
 }

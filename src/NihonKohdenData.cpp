@@ -117,7 +117,7 @@ void NihonKohdenData::printData() const
          << collection.toString() << endl;
 }
 
-void NihonKohdenData::printDataFields() const
+void NihonKohdenData::printHeader() const
 {
     cout << "\nData Fields: \n";
     cout << "Preamble: " << header.preamble << endl;

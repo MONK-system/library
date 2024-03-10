@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 add_subdirectory(pybind11)
 
 set(SOURCES
-    src/pyMONK.cpp
+    src/pybind.cpp
     src/MFERData.cpp
     src/MFERDataCollection.cpp
     src/DataStack.cpp

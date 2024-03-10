@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         NihonKohdenData nihonKohdenData(inputFilename);
 
         nihonKohdenData.printData();
-        nihonKohdenData.printDataFields();
+        nihonKohdenData.printHeader();
         nihonKohdenData.writeToCsv(outputFilename);
     }
     catch (const exception &e)

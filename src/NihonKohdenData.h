@@ -39,7 +39,7 @@ public:
     Header getHeader() const;
 
     void printData() const;
-    void printDataFields() const;
+    void printHeader() const;
     void writeToCsv(const string &fileName) const;
 
 private:
