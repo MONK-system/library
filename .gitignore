@@ -8,4 +8,4 @@ out
 # CMake build directory
 /build/
 *.app
-*.egg-info
+*.egg-info/
