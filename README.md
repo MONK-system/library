@@ -19,8 +19,11 @@ Clone and initialize the repository:
 ```
 git clone https://github.com/MONK-system/library.git
 cd ./library
+[branch {branch}]
 git submodule update --init --recursive
 ```
+
+(Optionally switch to branch)
 
 Install the library:
 
@@ -29,6 +32,14 @@ pip install .
 ```
 
 This will install the library as "monkLib". (as of now)
+
+Alternatively, you can install the package directly by using:
+
+```
+pip install git+https://github.com/MONK-system/library.git[@branch]
+```
+
+@branch to optionally select which branch.
 
 ## Script: write.py
 
