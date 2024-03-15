@@ -102,9 +102,10 @@ Cleans compilation files (out and .o files).
 ### From command-line
 
 ```
-python ./graph.py {data} [--sub]
+python ./graph.py {data} [--sub] [--rows {rows}]
 ```
 
-For example: `python ./graph.py ./output.csv --sub`. Creates subplot figure. Without the `--sub` flag, a combined plot is created.
+For example: `python ./graph.py ./output.csv`. Creates a combined plot. With the `--sub` flag, a subplot figure is created.
+`--rows` is 10 000 by default and specifies the maximum amount of rows that will be read (for optimization).
 
-Creates a combined plot or subplots of the csv data. Currently, the plots are limited to 10 000 lines (in graph.py), for optimization.
+Creates a combined plot or subplots of the csv data.

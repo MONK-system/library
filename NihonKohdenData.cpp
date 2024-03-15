@@ -11,7 +11,7 @@ NihonKohdenData::NihonKohdenData(ByteVector dataVector)
     fields = collectDataFields(collection.getMFERDataVector());
 }
 
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType); // Forward declaration
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder); // Forward declaration
 
 DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
 {
@@ -89,9 +89,13 @@ DataFields NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>>
         else if (WAV *wav = dynamic_cast<WAV *>(data.get()))
         {
             DataStack waveformDataStack(wav->getContents());
-            for (auto &channel : fields.channels)
+            for (uint16_t i = 0; i < fields.sequenceCount; i++) // For each sequence
             {
-                channel.data = popChannelData(waveformDataStack, channel.blockLength * fields.sequenceCount, channel.dataType);
+                for (auto &channel : fields.channels) // For each channel
+                {
+                    vector<double> sequenceData = popChannelData(waveformDataStack, channel.blockLength, channel.dataType, fields.byteOrder); // Pop the channel data according to the block length and data type size
+                    channel.data.insert(channel.data.end(), sequenceData.begin(), sequenceData.end());                                        // Add the sequence data to the channel data
+                }
             }
         }
         else if (data->getTag() == END::tag)
@@ -142,7 +146,7 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
 
     // Write csv header & get lowest sampling interval
     stringstream channelsHeader;
-    uint32_t largestBlockLength = 0;
+    uint64_t largestBlockLength = 0;
     double samplingInterval = fields.samplingInterval;
     for (auto channel : fields.channels)
     {
@@ -161,8 +165,7 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
 
     // Write waveform data
     vector<string> lines;
-    uint64_t totalBlocks = fields.sequenceCount * largestBlockLength;
-    lines.reserve(totalBlocks);
+    lines.reserve(fields.sequenceCount * largestBlockLength);
 
     int channelIntervals[fields.channels.size()];
     for (size_t i = 0; i < fields.channels.size(); i++)
@@ -170,39 +173,37 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
         channelIntervals[i] = largestBlockLength / fields.channels[i].blockLength;
     }
 
-    int loggingInterval = 1000;
-    cout << "0 / " << totalBlocks << " samples processed";
-    for (uint64_t i = 0; i < totalBlocks; i++)
-    {
-        if (i % loggingInterval == 0)
-        {
-            cout << "\r" << i << " / " << totalBlocks << " samples processed";
-        }
+    cout << "0 / " << fields.sequenceCount << " sequences processed";
 
-        stringstream line;
-        line << i * samplingInterval;
-        for (size_t j = 0; j < fields.channels.size(); j++)
+    for (uint16_t i = 0; i < fields.sequenceCount; i++) // For each sequence
+    {
+        for (uint64_t j = 0; j < largestBlockLength; j++) // For each block
         {
-            if (channelIntervals[j] == 1)
+            stringstream line;                                       // Create a new line
+            line << (i * largestBlockLength + j) * samplingInterval; // Write timestamp
+            for (size_t k = 0; k < fields.channels.size(); k++)      // For each channel
             {
-                line << ", " << fields.channels[j].data[i];
-            }
-            else
-            {
-                // If i * (channel.blockLength/largestBlocklength) is an integer, then write the value
-                if (i % channelIntervals[j] == 0)
+                if (channelIntervals[k] == 1) // If the channel has the same block length as the largest block length, then write the value
                 {
-                    line << ", " << fields.channels[j].data[i / channelIntervals[j]];
+                    line << ", " << fields.channels[k].data[i * largestBlockLength + j];
                 }
-                else
+                else // If the channel has a different block length, then write the value if the index is a multiple of the interval
                 {
-                    line << ", ";
+                    if (j % channelIntervals[k] == 0)
+                    {
+                        line << ", " << fields.channels[k].data[(i * largestBlockLength + j) / channelIntervals[k]];
+                    }
+                    else
+                    {
+                        line << ", ";
+                    }
                 }
             }
+            lines.push_back(line.str());
         }
-        lines.push_back(line.str());
+        cout << "\r" << (i + 1) << " / " << fields.sequenceCount << " sequences processed";
     }
-    cout << "\rProcessing complete. " << totalBlocks << " samples processed.\n";
+    cout << "\rProcessing complete. " << fields.sequenceCount << " sequences processed.\n";
 
     file.writeLines(lines);
     file.closeFile();
@@ -210,30 +211,30 @@ void NihonKohdenData::writeWaveformToCsv(const string &fileName) const
     cout << "Complete." << endl;
 }
 
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType)
+vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
 {
     switch (dataType)
     {
     case DataType::INT_16_S:
-        return waveformDataStack.pop_doubles<int16_t>(num);
+        return waveformDataStack.pop_doubles<int16_t>(num, byteOrder);
     case DataType::INT_16_U:
-        return waveformDataStack.pop_doubles<uint16_t>(num);
+        return waveformDataStack.pop_doubles<uint16_t>(num, byteOrder);
     case DataType::INT_32_S:
-        return waveformDataStack.pop_doubles<int32_t>(num);
+        return waveformDataStack.pop_doubles<int32_t>(num, byteOrder);
     case DataType::INT_8_U:
-        return waveformDataStack.pop_doubles<uint8_t>(num);
+        return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
     case DataType::STATUS_16:
-        return waveformDataStack.pop_doubles<uint16_t>(num);
+        return waveformDataStack.pop_doubles<uint16_t>(num, byteOrder);
     case DataType::INT_8_S:
-        return waveformDataStack.pop_doubles<int8_t>(num);
+        return waveformDataStack.pop_doubles<int8_t>(num, byteOrder);
     case DataType::INT_32_U:
-        return waveformDataStack.pop_doubles<uint32_t>(num);
+        return waveformDataStack.pop_doubles<uint32_t>(num, byteOrder);
     case DataType::FLOAT_32:
-        return waveformDataStack.pop_doubles<float>(num);
+        return waveformDataStack.pop_doubles<float>(num, byteOrder);
     case DataType::FLOAT_64:
-        return waveformDataStack.pop_doubles<double>(num);
+        return waveformDataStack.pop_doubles<double>(num, byteOrder);
     case DataType::AHA_8:
-        return waveformDataStack.pop_doubles<uint8_t>(num);
+        return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
     default:
         throw runtime_error("Invalid data type");
     }

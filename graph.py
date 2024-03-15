@@ -14,6 +14,10 @@ parser.add_argument('input', help='Input CSV file path')
 parser.add_argument(
     '--sub', help='Generate subplot graphs', action='store_true')
 
+# Add the '--rows' optional parameter with a default value of 10000
+parser.add_argument(
+    '--rows', type=int, default=10000, help='Number of rows to read from the CSV file')
+
 # Parse the command line arguments
 args = parser.parse_args()
 
@@ -21,7 +25,7 @@ args = parser.parse_args()
 csv_file_path = args.input
 
 # Define the number of rows to read (optional, remove or adjust as needed)
-number_of_rows = 10000
+number_of_rows = args.rows
 
 # Read the CSV file, specifying the number of rows to read
 df = pd.read_csv(csv_file_path, nrows=number_of_rows)
