@@ -72,7 +72,7 @@ MFERData::MFERData(DataStack *dataStack)
     contents = dataStack->pop_front(length);
 }
 
-string MFERData::toString(string left) const
+string MFERData::toHexString(string left) const
 {
     string tagStr = tagString();
     string lengthStr = lengthString();
@@ -102,9 +102,9 @@ ByteVector MFERData::getContents() const
     return contents;
 }
 
-EncodedString MFERData::getEncodedString(Encoding encoding) const
+string MFERData::toString(Encoding encoding) const
 {
-    return contents.toEncodedString(encoding);
+    return contents.toString(encoding);
 }
 
 ByteOrder BLE::getByteOrder() const
@@ -213,7 +213,7 @@ string ATT::contentsString(string left) const
     for (const auto &data : attributes)
     {
         stream << "\n"
-               << left << data->toString(leftStream.str());
+               << left << data->toHexString(leftStream.str());
     }
     return stream.str();
 }

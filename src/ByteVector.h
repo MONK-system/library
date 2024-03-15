@@ -23,13 +23,6 @@ enum class Encoding
     UTF16LE
 };
 
-// Struct to hold a wstring and its encoding
-struct EncodedString
-{
-    wstring str;
-    Encoding encoding;
-};
-
 // String to encoding
 Encoding stringToEncoding(const string &encoding);
 
@@ -38,10 +31,8 @@ class ByteVector : public vector<uint8_t>
 {
 public:
     using vector::vector;
-    string stringify() const;                               // Creates a string "AB CD 45 " from a list of bytes, for example
-    string toString() const;                                // Converts the byte vector to a string using the ASCII encoding
-    wstring toWstring(Encoding encoding) const;             // Converts the byte vector to a wstring using the specified encoding
-    EncodedString toEncodedString(Encoding encoding) const; // Converts the byte vector to an EncodedString using the specified encoding
+    string stringify() const;                                   // Creates a string "AB CD 45 " from a list of bytes, for example
+    string toString(Encoding encoding = Encoding::ASCII) const; // Converts the byte vector to a string using the ASCII encoding by default
 
     template <typename T>
     inline T toInt(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG) const

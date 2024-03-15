@@ -1,35 +1,14 @@
-cmake_minimum_required(VERSION 3.0)
-project(Library)
+cmake_minimum_required(VERSION 3.8...3.18)
+project(monklib)
 
-# Add source files here
-set(SOURCES
-    main.cpp
-    MFERData.cpp
-    MFERDataCollection.cpp
-    DataStack.cpp
-    FileManager.cpp
-    NihonKohdenData.cpp
-    ByteVector.cpp
-)
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 
-# Add header file here
-set(HEADERS
-    ByteVector.h
-    DataStack.h
-    FileManager.h
-    MFERData.h
-    MFERDataCollection.h
-    NihonKohdenData.h
-)
+# Include pybind11
+add_subdirectory(pybind11)
 
-# Create library target
-add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
+file(GLOB SOURCES "src/*.cpp")
 
-# Create executable target
-add_executable(${PROJECT_NAME}_app main.cpp)
+file(GLOB HEADERS "src/*.h")
 
-# Link library to the executable
-target_link_libraries(${PROJECT_NAME}_app ${PROJECT_NAME})
-
-# Specify include directories
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# Define module
+pybind11_add_module(${PROJECT_NAME} ${SOURCES} ${HEADERS})

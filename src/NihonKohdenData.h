@@ -11,15 +11,15 @@
 
 using namespace std;
 
-struct DataFields
+struct Header
 {
     string preamble;
     ByteOrder byteOrder = ByteOrder::ENDIAN_LITTLE;
-    EncodedString modelInfo;
+    string modelInfo;
     uint8_t waveformType; // Unsure of encoding
     string measurementTimeISO;
-    EncodedString patientID;
-    EncodedString patientName;
+    string patientID;
+    string patientName;
     string birthDateISO;
     string patientSex;
     float samplingInterval;
@@ -36,15 +36,17 @@ public:
     NihonKohdenData(ByteVector dataVector);
     NihonKohdenData(const string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
+    Header getHeader() const;
+
     void printData() const;
-    void printDataFields() const;
-    void writeWaveformToCsv(const string &fileName) const;
+    void printHeader() const;
+    void writeToCsv(const string &fileName) const;
 
 private:
     MFERDataCollection collection;
-    DataFields fields;
+    Header header;
 
-    DataFields collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector);
+    Header collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector);
 };
 
 #endif

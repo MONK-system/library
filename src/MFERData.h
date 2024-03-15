@@ -20,9 +20,9 @@ public:
     static inline string headerString() { return "| Tag   | Length      | Contents"; }
     static inline string sectionString() { return "|-------|-------------|----------->"; }
     static inline string spacerString() { return "|       |             "; }
-    string toString(string left) const;
+    string toHexString(string left) const;
 
-    EncodedString getEncodedString(Encoding encoding) const;
+    string toString(Encoding encoding = Encoding::ASCII) const;
 
     virtual uint8_t getTag() const { return 0x00; };
     const uint64_t &getLength() const { return length; };
@@ -297,7 +297,7 @@ enum class Lead : uint16_t // 2 bytes
 struct LeadInfo
 {
     Lead lead;
-    string parameterName;
+    string attribute;
     string samplingResolution;
     uint8_t unitCode;
 };
