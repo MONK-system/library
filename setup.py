@@ -72,8 +72,10 @@ class CMakeBuild(build_ext):
                     ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
                     cmake_args += [
                         "-GNinja",
-                        f"-DCMAKE_MAKE_PROGRAM:FILEPATH={
-                            ninja_executable_path}",
+                        (
+                            f"-DCMAKE_MAKE_PROGRAM:FILEPATH="
+                            f"{ninja_executable_path}"
+                        ),
                     ]
                 except ImportError:
                     pass
