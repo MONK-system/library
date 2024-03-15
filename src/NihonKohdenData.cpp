@@ -169,7 +169,7 @@ void NihonKohdenData::writeToCsv(const string &fileName) const
     uint64_t totalBlocks = header.sequenceCount * largestBlockLength;
     lines.reserve(totalBlocks);
 
-    int channelIntervals[header.channels.size()];
+    vector<int> channelIntervals(header.channels.size());
     for (size_t i = 0; i < header.channels.size(); i++)
     {
         channelIntervals[i] = largestBlockLength / header.channels[i].blockLength;

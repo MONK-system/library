@@ -6,11 +6,11 @@ As of this commit, the library can take an input MWF file, print the data & head
 
 ## Installing the library
 
-### prerequisites
+### Prerequisites
 
-- g++
-- CMake
-- python
+- **Python**: Python 3.7 or newer.
+- **CMake**: Version 3.8 or newer. CMake is used to configure the build process.
+- **g++** or **MSVC**: A C++ compiler that supports C++17 standard. For g++, version 7.3 or newer is recommended. For MSVC, Visual Studio 2019 or newer is required.
 
 ### CLI
 

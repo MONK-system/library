@@ -1,5 +1,5 @@
 # Write the data from a MFER file to another CSV file
-import monkLib
+import monklib
 import argparse
 
 # Initialize the parser
@@ -11,7 +11,7 @@ parser.add_argument('output', help='Output CSV file path')
 # Parse the command line arguments
 args = parser.parse_args()
 
-data = monkLib.NihonKohdenData(args.input)
+data = monklib.NihonKohdenData(args.input)
 
 data.printHeader()
 data.writeToCsv(args.output)
