@@ -14,24 +14,14 @@ As of this commit, the library can take an input MWF file, print the data & head
 
 ### CLI
 
-Clone and initialize the repository:
+Clone and install the repository:
 
 ```
-git clone https://github.com/MONK-system/library.git
-cd ./library
-[branch {branch}]
-git submodule update --init --recursive
+git clone --recursive https://github.com/MONK-system/library.git
+pip install ./library
 ```
 
-(Optionally switch to branch)
-
-Install the library:
-
-```
-pip install .
-```
-
-This will install the library as "monkLib". (as of now)
+This will install the library as "monklib". (as of now)
 
 Alternatively, you can install the package directly by using:
 
@@ -43,13 +33,21 @@ pip install git+https://github.com/MONK-system/library.git[@branch]
 
 ## Script: write.py
 
-This script will print the header information of a file and write to csv.
+This script will write the data of a file to csv.
 
 ```
-python write.py {input} {output}
+python scripts/write.py {input} {output}
 ```
 
 For example: `python write.py data.MWF output.csv` will print the header information and write the data to output.csv.
+
+## Script: write.py
+
+This script will print the header information of a file.
+
+```
+python scripts/write.py {input}
+```
 
 ## Script: graph.py
 
@@ -61,9 +59,9 @@ For example: `python write.py data.MWF output.csv` will print the header informa
 ### Usage
 
 ```
-python graph.py {data} [--sub]
+python scripts/graph.py {data} [--combined]
 ```
 
-For example: `python graph.py output.csv --sub`. Creates subplot figure. Without the `--sub` flag, a combined plot is created.
+For example: `python graph.py output.csv --combined`. Creates combined figure. Without the `--combined` flag, subplot figures are created.
 
-Creates a combined plot or subplots of the csv data. Currently, the plots are limited to 10 000 lines (in graph.py), for optimization.
+Creates subplots or a combined plot of the csv data. Currently by default, the plots are limited to a maximum of 10 000 lines (in graph.py), for optimization.

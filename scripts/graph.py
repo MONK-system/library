@@ -10,11 +10,11 @@ parser = argparse.ArgumentParser(description='Plot CSV data')
 # Add the input file as a positional argument
 parser.add_argument('input', help='Input CSV file path')
 
-# Add the '--sub' optional flag
+# Add the '--combined' optional flag
 parser.add_argument(
-    '--sub', help='Generate subplot graphs', action='store_true')
+    '--combined', help='Generate combined graph', action='store_true')
 
-# Add the '--rows' optional parameter with a default value of 10000
+# Add the '--rows' optional parameter with a default value of 10 000
 parser.add_argument(
     '--rows', type=int, default=10000, help='Number of rows to read from the CSV file')
 
@@ -41,8 +41,26 @@ df.interpolate(method='linear', limit_direction='forward',
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.dropna(inplace=True)
 
-# If the '--sub' flag is provided, generate subplots
+# If the '--combined' flag is provided, generate a combined graph
 if args.sub:
+    # Create a Plotly Graph Objects figure
+    fig = go.Figure()
+
+    # Add a line for each measurement column, excluding 'Time (s)'
+    for column in df.columns[1:]:
+        fig.add_trace(go.Scatter(x=df['Time: (s)'],
+                                 y=df[column], mode='lines', name=column))
+
+    # Update layout with titles and adjust other layout elements
+    fig.update_layout(title='Measurements Over Time (Limited Data)',
+                      xaxis_title='Time (s)',
+                      yaxis_title='Measurement Value',
+                      legend_title='Measurements')
+
+    # Show the plot
+    fig.show()
+
+else:  # Otherwise, generate subplots
     # Create subplots: one row for each measurement
     fig = make_subplots(rows=len(df.columns[1:]), cols=1, shared_xaxes=True)
 
@@ -76,24 +94,6 @@ if args.sub:
     # Update yaxis titles
     for i, column in enumerate(df.columns[1:], start=1):
         fig.update_yaxes(title_text=column, row=i, col=1)
-
-    # Show the plot
-    fig.show()
-
-else:  # Otherwise, generate a combined graph
-    # Create a Plotly Graph Objects figure
-    fig = go.Figure()
-
-    # Add a line for each measurement column, excluding 'Time (s)'
-    for column in df.columns[1:]:
-        fig.add_trace(go.Scatter(x=df['Time: (s)'],
-                                 y=df[column], mode='lines', name=column))
-
-    # Update layout with titles and adjust other layout elements
-    fig.update_layout(title='Measurements Over Time (Limited Data)',
-                      xaxis_title='Time (s)',
-                      yaxis_title='Measurement Value',
-                      legend_title='Measurements')
 
     # Show the plot
     fig.show()

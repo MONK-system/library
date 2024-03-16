@@ -4,6 +4,24 @@
 
 namespace py = pybind11;
 
+void printFileHeader(const string &filename)
+{
+    NihonKohdenData data(filename);
+    data.printHeader();
+}
+
+void convertFileToCsv(const string &filename, const string &outputFilename)
+{
+    NihonKohdenData data(filename);
+    data.writeToCsv(outputFilename);
+}
+
+Header getHeader(const string &filename)
+{
+    NihonKohdenData data(filename);
+    return data.getHeader();
+}
+
 PYBIND11_MODULE(monklib, m)
 {
     py::class_<NIBPEvent>(m, "NIBPEvent")
@@ -37,11 +55,15 @@ PYBIND11_MODULE(monklib, m)
         .def_readonly("channelCount", &Header::channelCount)
         .def_readonly("channels", &Header::channels);
 
-    py::class_<NihonKohdenData>(m, "NihonKohdenData")
+    py::class_<NihonKohdenData>(m, "Data")
         .def(py::init<const string &>())
         .def("getHeader", &NihonKohdenData::getHeader,
              py::return_value_policy::copy, "Get the header of the data")
         .def("printData", &NihonKohdenData::printData, "Print the data in hex format")
         .def("printHeader", &NihonKohdenData::printHeader, "Print the header")
-        .def("writeToCsv", &NihonKohdenData::writeToCsv);
+        .def("writeToCsv", &NihonKohdenData::writeToCsv, "Write the data to a csv file");
+
+    m.def("get_header", &getHeader, "Get the header of the file");
+    m.def("print_header", &printFileHeader, "Print the header of the file");
+    m.def("convert_to_csv", &convertFileToCsv, "Convert the file to a csv file");
 }
