@@ -53,6 +53,7 @@ python scripts/write.py {input}
 
 ### Prerequisites
 
+- numpy
 - pandas
 - plotly
 
