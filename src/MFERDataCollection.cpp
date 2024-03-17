@@ -55,7 +55,7 @@ string collectionToString(const vector<unique_ptr<MFERData>> *collection, string
         for (const auto &data : *collection)
         {
             stream << "\n"
-                   << data->toString(left);
+                   << data->toHexString(left);
         }
     }
 
