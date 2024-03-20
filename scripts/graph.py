@@ -42,7 +42,7 @@ df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.dropna(inplace=True)
 
 # If the '--combined' flag is provided, generate a combined graph
-if args.sub:
+if args.combined:
     # Create a Plotly Graph Objects figure
     fig = go.Figure()
 
