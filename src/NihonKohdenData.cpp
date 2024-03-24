@@ -121,27 +121,34 @@ void NihonKohdenData::printData() const
          << collection.toString() << endl;
 }
 
+string Header::toString() const
+{
+    stringstream ss;
+    ss << "Preamble: " << preamble << endl;
+    ss << "Byte Order: " << (byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
+    ss << "Model Info: " << modelInfo << endl;
+    ss << "Measurement Time: " << measurementTimeISO << endl;
+    ss << "Patient ID: " << patientID << endl;
+    ss << "Patient Name: " << patientName << endl;
+    ss << "Birth Date: " << birthDateISO << endl;
+    ss << "Patient Sex: " << patientSex << endl;
+    ss << "Sampling Interval: " << samplingIntervalString << endl;
+    ss << "NIBP Events: " << events.size() << endl;
+    ss << "Sequence Count: " << (int)sequenceCount << endl;
+    ss << "Channel Count: " << (int)channelCount << endl;
+    for (const auto &channel : channels)
+    {
+        ss << "Channel: " << channel.leadInfo.attribute << endl;
+        ss << "   Block Length: " << channel.blockLength << endl;
+        ss << "   Sampling Resolution: " << channel.leadInfo.samplingResolution << endl;
+    }
+    return ss.str();
+}
+
 void NihonKohdenData::printHeader() const
 {
     cout << "\nHeader: \n";
-    cout << "Preamble: " << header.preamble << endl;
-    cout << "Byte Order: " << (header.byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
-    cout << "Model Info: " << header.modelInfo << endl;
-    cout << "Measurement Time: " << header.measurementTimeISO << endl;
-    cout << "Patient ID: " << header.patientID << endl;
-    cout << "Patient Name: " << header.patientName << endl;
-    cout << "Birth Date: " << header.birthDateISO << endl;
-    cout << "Patient Sex: " << header.patientSex << endl;
-    cout << "Sampling Interval: " << header.samplingIntervalString << endl;
-    cout << "NIBP Events: " << header.events.size() << endl;
-    cout << "Sequence Count: " << (int)header.sequenceCount << endl;
-    cout << "Channel Count: " << (int)header.channelCount << endl;
-    for (const auto &channel : header.channels)
-    {
-        cout << "Channel: " << channel.leadInfo.attribute << endl;
-        cout << "   Block Length: " << channel.blockLength << endl;
-        cout << "   Sampling Resolution: " << channel.leadInfo.samplingResolution << endl;
-    }
+    cout << header.toString() << endl;
 }
 
 void NihonKohdenData::writeToCsv(const string &fileName) const
