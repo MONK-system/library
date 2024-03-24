@@ -53,7 +53,8 @@ PYBIND11_MODULE(monklib, m)
         .def_readonly("events", &Header::events)
         .def_readonly("sequenceCount", &Header::sequenceCount)
         .def_readonly("channelCount", &Header::channelCount)
-        .def_readonly("channels", &Header::channels);
+        .def_readonly("channels", &Header::channels)
+        .def("__str__", &Header::toString);
 
     py::class_<NihonKohdenData>(m, "Data")
         .def(py::init<const string &>())

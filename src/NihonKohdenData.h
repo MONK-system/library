@@ -28,6 +28,7 @@ struct Header
     uint16_t sequenceCount;
     uint8_t channelCount;
     vector<Channel> channels;
+    string toString() const;
 };
 
 class NihonKohdenData
