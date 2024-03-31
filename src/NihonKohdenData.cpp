@@ -1,9 +1,11 @@
 #include "NihonKohdenData.h"
+
 #include <iostream>
 #include <cstdint>
 #include <sstream>
 
-using namespace std;
+// Forward declaration
+std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder);
 
 NihonKohdenData::NihonKohdenData(ByteVector dataVector)
 {
@@ -11,10 +13,7 @@ NihonKohdenData::NihonKohdenData(ByteVector dataVector)
     header = collectDataFields(collection.getMFERDataVector());
 }
 
-
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder); // Forward declaration
-
-Header NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mferDataVector)
+Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector)
 {
     Header fields;
 
@@ -94,7 +93,7 @@ Header NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mf
             {
                 for (auto &channel : fields.channels) // For each channel
                 {
-                    vector<double> sequenceData = popChannelData(waveformDataStack, channel.blockLength, channel.dataType, fields.byteOrder); // Pop the channel data according to the block length and data type size
+                    std::vector<double> sequenceData = popChannelData(waveformDataStack, channel.blockLength, channel.dataType, fields.byteOrder); // Pop the channel data according to the block length and data type size
                     channel.data.insert(channel.data.end(), sequenceData.begin(), sequenceData.end());                                        // Add the sequence data to the channel data
                 }
             }
@@ -105,7 +104,7 @@ Header NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mf
         }
         else
         {
-            cerr << "Unknown tag: " << data->getTag() << endl;
+            std::cerr << "Unknown tag: " << data->getTag() << std::endl;
         }
     }
     return fields;
@@ -113,47 +112,47 @@ Header NihonKohdenData::collectDataFields(const vector<unique_ptr<MFERData>> &mf
 
 void NihonKohdenData::printData() const
 {
-    cout << endl
-         << collection.toString() << endl;
+    std::cout << std::endl
+         << collection.toString() << std::endl;
 }
 
-string Header::toString() const
+std::string Header::toString() const
 {
-    stringstream ss;
-    ss << "Preamble: " << preamble << endl;
-    ss << "Byte Order: " << (byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << endl;
-    ss << "Model Info: " << modelInfo << endl;
-    ss << "Measurement Time: " << measurementTimeISO << endl;
-    ss << "Patient ID: " << patientID << endl;
-    ss << "Patient Name: " << patientName << endl;
-    ss << "Birth Date: " << birthDateISO << endl;
-    ss << "Patient Sex: " << patientSex << endl;
-    ss << "Sampling Interval: " << samplingIntervalString << endl;
-    ss << "NIBP Events: " << events.size() << endl;
-    ss << "Sequence Count: " << (int)sequenceCount << endl;
-    ss << "Channel Count: " << (int)channelCount << endl;
+    std::stringstream ss;
+    ss << "Preamble: " << preamble << std::endl;
+    ss << "Byte Order: " << (byteOrder == ByteOrder::ENDIAN_LITTLE ? "Little Endian" : "Big Endian") << std::endl;
+    ss << "Model Info: " << modelInfo << std::endl;
+    ss << "Measurement Time: " << measurementTimeISO << std::endl;
+    ss << "Patient ID: " << patientID << std::endl;
+    ss << "Patient Name: " << patientName << std::endl;
+    ss << "Birth Date: " << birthDateISO << std::endl;
+    ss << "Patient Sex: " << patientSex << std::endl;
+    ss << "Sampling Interval: " << samplingIntervalString << std::endl;
+    ss << "NIBP Events: " << events.size() << std::endl;
+    ss << "Sequence Count: " << (int)sequenceCount << std::endl;
+    ss << "Channel Count: " << (int)channelCount << std::endl;
     for (const auto &channel : channels)
     {
-        ss << "Channel: " << channel.leadInfo.attribute << endl;
-        ss << "   Block Length: " << channel.blockLength << endl;
-        ss << "   Sampling Resolution: " << channel.leadInfo.samplingResolution << endl;
+        ss << "Channel: " << channel.leadInfo.attribute << std::endl;
+        ss << "   Block Length: " << channel.blockLength << std::endl;
+        ss << "   Sampling Resolution: " << channel.leadInfo.samplingResolution << std::endl;
     }
     return ss.str();
 }
 
 void NihonKohdenData::printHeader() const
 {
-    cout << "\nHeader: \n";
-    cout << header.toString() << endl;
+    std::cout << "\nHeader: \n";
+    std::cout << header.toString() << std::endl;
 }
 
-void NihonKohdenData::writeToCsv(const string &fileName) const
+void NihonKohdenData::writeToCsv(const std::string &fileName) const
 {
-    cout << "\nWriting waveform data to " << fileName << endl;
+    std::cout << "\nWriting waveform data to " << fileName << std::endl;
     FileManager file(fileName);
 
     // Write csv header & get lowest sampling interval
-    stringstream channelsHeader;
+    std::stringstream channelsHeader;
     uint64_t largestBlockLength = 0;
     double samplingInterval = header.samplingInterval;
     for (auto channel : header.channels)
@@ -165,29 +164,29 @@ void NihonKohdenData::writeToCsv(const string &fileName) const
             samplingInterval = channel.samplingInterval;
         }
     }
-    stringstream headerStream;
+    std::stringstream headerStream;
     headerStream << "Time: "
                  << "(s)" << channelsHeader.str();
 
     file.writeLine(headerStream.str()); // Write header to file
 
     // Write waveform data
-    vector<string> lines;
+    std::vector<std::string> lines;
     lines.reserve(header.sequenceCount * largestBlockLength);
 
-    vector<int> channelIntervals(header.channels.size());
+    std::vector<int> channelIntervals(header.channels.size());
     for (size_t i = 0; i < header.channels.size(); i++)
     {
         channelIntervals[i] = largestBlockLength / header.channels[i].blockLength;
     }
 
-    cout << "0 / " << header.sequenceCount << " sequences processed";
+    std::cout << "0 / " << header.sequenceCount << " sequences processed";
 
     for (uint16_t i = 0; i < header.sequenceCount; i++) // For each sequence
     {
         for (uint64_t j = 0; j < largestBlockLength; j++) // For each block
         {
-            stringstream line;                                       // Create a new line
+            std::stringstream line;                                       // Create a new line
             line << (i * largestBlockLength + j) * samplingInterval; // Write timestamp
             for (size_t k = 0; k < header.channels.size(); k++)      // For each channel
             {
@@ -209,17 +208,17 @@ void NihonKohdenData::writeToCsv(const string &fileName) const
             }
             lines.push_back(line.str());
         }
-        cout << "\r" << (i + 1) << " / " << header.sequenceCount << " sequences processed";
+        std::cout << "\r" << (i + 1) << " / " << header.sequenceCount << " sequences processed";
     }
-    cout << "\rProcessing complete. " << header.sequenceCount << " sequences processed.\n";
+    std::cout << "\rProcessing complete. " << header.sequenceCount << " sequences processed.\n";
 
     file.writeLines(lines);
     file.closeFile();
 
-    cout << "Complete." << endl;
+    std::cout << "Complete." << std::endl;
 }
 
-vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
+std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder)
 {
     switch (dataType)
     {
@@ -244,6 +243,6 @@ vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataTy
     case DataType::AHA_8:
         return waveformDataStack.pop_doubles<uint8_t>(num, byteOrder);
     default:
-        throw runtime_error("Invalid data type");
+        throw std::runtime_error("Invalid data type");
     }
 }
