@@ -11,10 +11,6 @@ NihonKohdenData::NihonKohdenData(ByteVector dataVector)
     header = collectDataFields(collection.getMFERDataVector());
 }
 
-Header NihonKohdenData::getHeader() const
-{
-    return header;
-}
 
 vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder); // Forward declaration
 

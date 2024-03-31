@@ -37,7 +37,7 @@ public:
     NihonKohdenData(ByteVector dataVector);
     NihonKohdenData(const string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
-    Header getHeader() const;
+    inline Header getHeader() const { return header; }
 
     void printData() const;
     void printHeader() const;
