@@ -5,25 +5,22 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <stdexcept>
-
-using namespace std;
 
 class FileManager
 {
 public:
-    FileManager(const string &outputFileName);
+    FileManager(const std::string &outputFileName);
     ~FileManager(); // Declare the destructor
 
-    void writeLine(const string &line);
-    void writeLines(const vector<string> &lines);
+    void writeLine(const std::string &line);
+    void writeLines(const std::vector<std::string> &lines);
     void closeFile();
 
-    static ByteVector readBinaryFile(const string &fileName);
+    static ByteVector readBinaryFile(const std::string &fileName);
 
 private:
-    string fileName;
-    ofstream outputFile;
+    std::string fileName;
+    std::ofstream outputFile;
 };
 
 #endif // FILEMANAGER_H

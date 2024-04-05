@@ -1,8 +1,5 @@
 #include "DataStack.h"
 #include "ByteVector.h"
-#include <iostream>
-
-using namespace std;
 
 DataStack::DataStack(const ByteVector dataVector)
 {
@@ -14,7 +11,7 @@ ByteVector DataStack::pop_front(uint64_t num)
 {
     if (data.size() < num)
     {
-        throw runtime_error("Error while reading data, number out of range.");
+        throw std::runtime_error("Error while reading data, number out of range.");
     }
     ByteVector byteVector;
     for (uint64_t i = 0; i < num; ++i)
