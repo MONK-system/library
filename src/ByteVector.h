@@ -7,8 +7,6 @@
 #include <cstdint>
 #include <cstring>
 
-using namespace std;
-
 enum class ByteOrder
 {
     ENDIAN_BIG,
@@ -24,23 +22,23 @@ enum class Encoding
 };
 
 // String to encoding
-Encoding stringToEncoding(const string &encoding);
+Encoding stringToEncoding(const std::string &encoding);
 
 // ByteVector class to represent a vector of bytes
-class ByteVector : public vector<uint8_t>
+class ByteVector : public std::vector<uint8_t>
 {
 public:
     using vector::vector;
-    string stringify() const;                                   // Creates a string "AB CD 45 " from a list of bytes, for example
-    string toString(Encoding encoding = Encoding::ASCII) const; // Converts the byte vector to a string using the ASCII encoding by default
+    std::string stringify() const;                                   // Creates a string "AB CD 45 " from a list of bytes, for example
+    std::string toString(Encoding encoding = Encoding::ASCII) const; // Converts the byte vector to a string using the ASCII encoding by default
 
     template <typename T>
     inline T toInt(ByteOrder byteOrder = ByteOrder::ENDIAN_BIG) const
     {
-        static_assert(is_integral<T>::value || is_floating_point<T>::value, "Return type must be an integral or floating-point type.");
+        static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "Return type must be an integral or floating-point type.");
         if (this->size() > sizeof(T))
         {
-            throw runtime_error("Vector size is larger than the size of the return type.");
+            throw std::runtime_error("Vector size is larger than the size of the return type.");
         }
 
         T value;
@@ -63,7 +61,7 @@ public:
     template <typename T>
     inline static ByteVector fromInt(T value)
     {
-        static_assert(is_integral<T>::value, "Input type must be an integral type.");
+        static_assert(std::is_integral<T>::value, "Input type must be an integral type.");
 
         ByteVector byteVector;
         bool leadingZero = true;

@@ -3,11 +3,10 @@
 
 #include "DataStack.h"
 #include "ByteVector.h"
+
 #include <memory>
 #include <cstdint>
 #include <map>
-
-using namespace std;
 
 class MFERData
 {
@@ -17,12 +16,12 @@ public:
 
     inline static uint64_t maxByteLength = 100;
 
-    static inline string headerString() { return "| Tag   | Length      | Contents"; }
-    static inline string sectionString() { return "|-------|-------------|----------->"; }
-    static inline string spacerString() { return "|       |             "; }
-    string toHexString(string left) const;
+    static inline std::string headerString() { return "| Tag   | Length      | Contents"; }
+    static inline std::string sectionString() { return "|-------|-------------|----------->"; }
+    static inline std::string spacerString() { return "|       |             "; }
+    std::string toHexString(std::string left) const;
 
-    string toString(Encoding encoding = Encoding::ASCII) const;
+    std::string toString(Encoding encoding = Encoding::ASCII) const;
 
     virtual uint8_t getTag() const { return 0x00; };
     const uint64_t &getLength() const { return length; };
@@ -32,12 +31,12 @@ protected:
     uint64_t length;
     ByteVector contents;
 
-    inline string tagString() const { return ByteVector::fromInt<decltype(getTag())>(getTag()).stringify(); };
-    inline string lengthString() const { return ByteVector::fromInt<decltype(length)>(length).stringify(); };
-    virtual string contentsString(string left) const;
+    inline std::string tagString() const { return ByteVector::fromInt<decltype(getTag())>(getTag()).stringify(); };
+    inline std::string lengthString() const { return ByteVector::fromInt<decltype(length)>(length).stringify(); };
+    virtual std::string contentsString(std::string left) const;
 };
 
-unique_ptr<MFERData> parseMFERData(DataStack *dataStack);
+std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack);
 
 class PRE : public MFERData // Preamble
 {
@@ -88,7 +87,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x85;
     uint8_t getTag() const { return tag; }
-    string getMeasurementTime(ByteOrder byteOrder) const; // Unsure of full encoding (ms?)
+    std::string getMeasurementTime(ByteOrder byteOrder) const; // Unsure of full encoding (ms?)
 };
 
 class PID : public MFERData // Patient ID
@@ -113,7 +112,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x83;
     uint8_t getTag() const { return tag; }
-    string getBirthDate(ByteOrder byteOrder) const;
+    std::string getBirthDate(ByteOrder byteOrder) const;
 };
 
 class SEX : public MFERData // Patient sex/gender
@@ -122,7 +121,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x84;
     uint8_t getTag() const { return tag; }
-    string getPatientSex() const;
+    std::string getPatientSex() const;
 };
 
 class IVL : public MFERData // Sampling interval
@@ -132,7 +131,7 @@ public:
     static const uint8_t tag = 0x0B;
     uint8_t getTag() const { return tag; }
     float getSamplingInterval() const;
-    string getSamplingIntervalString() const;
+    std::string getSamplingIntervalString() const;
 };
 
 struct NIBPEvent
@@ -140,7 +139,7 @@ struct NIBPEvent
     uint16_t eventCode;
     uint32_t startTime; // Offset from measurement start time?
     uint32_t duration;
-    string information;
+    std::string information;
 };
 
 class EVT : public MFERData // Event (NIBP data)
@@ -297,8 +296,8 @@ enum class Lead : uint16_t // 2 bytes
 struct LeadInfo
 {
     Lead lead;
-    string attribute;
-    string samplingResolution;
+    std::string attribute;
+    std::string samplingResolution;
     uint8_t unitCode;
 };
 
@@ -308,9 +307,9 @@ struct Channel
     DataType dataType;
     uint32_t blockLength;
     float samplingInterval;
-    string samplingIntervalString;
+    std::string samplingIntervalString;
     float samplingResolution;
-    vector<double> data;
+    std::vector<double> data;
 };
 
 class ATT : public MFERData // A channel, next byte in file specifies number
@@ -319,13 +318,13 @@ public:
     static const uint8_t tag = 0x3F;
     uint8_t getTag() const { return tag; }
     ATT(DataStack *dataStack);
-    vector<unique_ptr<MFERData>> getAttributes() const;
+    std::vector<std::unique_ptr<MFERData>> getAttributes() const;
     Channel getChannel(ByteOrder byteOrder) const;
 
 private:
     uint8_t channelIndex;
-    vector<unique_ptr<MFERData>> attributes;
-    string contentsString(string left) const;
+    std::vector<std::unique_ptr<MFERData>> attributes;
+    std::string contentsString(std::string left) const;
 };
 
 class WAV : public MFERData // Waveform data
@@ -347,7 +346,7 @@ public:
     END(DataStack *dataStack);
 
 private:
-    string contentsString(string left) const;
+    std::string contentsString(std::string left) const;
 };
 
 class LDN : public MFERData // Waveform attributes (Contains Lead)
@@ -386,7 +385,7 @@ public:
 };
 
 // Map of Lead codes to their string representation
-const map<Lead, LeadInfo>
+const std::map<Lead, LeadInfo>
     LeadMap = {
         {Lead::PACING_STATUS, LeadInfo{Lead::PACING_STATUS, "Pacing Status", "N/A", 0}},
         {Lead::PACING_BODY_POS, LeadInfo{Lead::PACING_BODY_POS, "Pacing Body Position", "N/A", 0}},

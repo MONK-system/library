@@ -6,8 +6,6 @@
 #include <deque>
 #include <cstdint>
 
-using namespace std;
-
 class DataStack
 {
 public:
@@ -32,22 +30,22 @@ public:
             ByteVector byteVector = pop_front(sizeof(T));
             return byteVector.toInt<T>(byteOrder);
         }
-        catch (const runtime_error &e)
+        catch (const std::runtime_error &e)
         {
             throw e;
         }
     }
     template <typename T>
-    inline vector<T> pop_values(uint64_t num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
+    inline std::vector<T> pop_values(uint64_t num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
     {
-        vector<T> values;
+        std::vector<T> values;
         for (int i = 0; i < (int)num; ++i)
         {
             try
             {
                 values.push_back(pop_value<T>(byteOrder));
             }
-            catch (const runtime_error &e)
+            catch (const std::runtime_error &e)
             {
                 throw e;
             }
@@ -62,22 +60,22 @@ public:
         {
             return static_cast<double>(pop_value<T>(byteOrder));
         }
-        catch (const runtime_error &e)
+        catch (const std::runtime_error &e)
         {
             throw e;
         }
     }
     template <typename T>
-    inline vector<double> pop_doubles(uint64_t num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
+    inline std::vector<double> pop_doubles(uint64_t num, ByteOrder byteOrder = ByteOrder::ENDIAN_BIG)
     {
-        vector<double> values;
+        std::vector<double> values;
         for (uint64_t i = 0; i < num; ++i)
         {
             try
             {
                 values.push_back(pop_double<T>(byteOrder));
             }
-            catch (const runtime_error &e)
+            catch (const std::runtime_error &e)
             {
                 throw e;
             }
@@ -86,7 +84,7 @@ public:
     }
 
 private:
-    deque<uint8_t> data;
+    std::deque<uint8_t> data;
 };
 
 #endif

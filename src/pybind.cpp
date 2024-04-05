@@ -4,19 +4,19 @@
 
 namespace py = pybind11;
 
-void printFileHeader(const string &filename)
+void printFileHeader(const std::string &filename)
 {
     NihonKohdenData data(filename);
     data.printHeader();
 }
 
-void convertFileToCsv(const string &filename, const string &outputFilename)
+void convertFileToCsv(const std::string &filename, const std::string &outputFilename)
 {
     NihonKohdenData data(filename);
     data.writeToCsv(outputFilename);
 }
 
-Header getHeader(const string &filename)
+Header getHeader(const std::string &filename)
 {
     NihonKohdenData data(filename);
     return data.getHeader();
@@ -57,7 +57,7 @@ PYBIND11_MODULE(monklib, m)
         .def("__str__", &Header::toString);
 
     py::class_<NihonKohdenData>(m, "Data")
-        .def(py::init<const string &>())
+        .def(py::init<const std::string &>())
         .def("getHeader", &NihonKohdenData::getHeader,
              py::return_value_policy::copy, "Get the header of the data")
         .def("printData", &NihonKohdenData::printData, "Print the data in hex format")
