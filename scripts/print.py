@@ -3,7 +3,7 @@ from monklib import print_header
 import argparse
 
 # Initialize the parser
-parser = argparse.ArgumentParser(description='Plot CSV data')
+parser = argparse.ArgumentParser(description='Print MFER header')
 # Add the input file as a positional argument
 parser.add_argument('input', help='Input binary data file path')
 # Parse the command line arguments

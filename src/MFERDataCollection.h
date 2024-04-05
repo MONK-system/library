@@ -20,6 +20,7 @@ public:
     };
     inline size_t size() const { return mferDataVector.size(); };
     std::string toString(uint64_t maxByteLength = 100) const;
+    ByteVector toByteVector() const;
 
 private:
     std::vector<std::unique_ptr<MFERData>> mferDataVector;

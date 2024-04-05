@@ -64,3 +64,14 @@ std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *col
 
     return stream.str();
 }
+
+ByteVector MFERDataCollection::toByteVector() const
+{
+    ByteVector dataVector;
+    for (const auto &data : mferDataVector)
+    {
+        ByteVector dataBytes = data->toByteVector();
+        dataVector.insert(dataVector.end(), dataBytes.begin(), dataBytes.end());
+    }
+    return dataVector;
+}

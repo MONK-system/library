@@ -71,3 +71,19 @@ ByteVector FileManager::readBinaryFile(const string &fileName)
 
     return dataVector;
 }
+
+void FileManager::writeBinaryFile(const string &fileName, const ByteVector &data)
+{
+    ofstream file(fileName, ios::binary);
+
+    if (!file.is_open())
+    {
+        throw runtime_error("Error opening file.");
+    }
+
+    if (!file.write(reinterpret_cast<const char *>(data.data()), data.size()))
+    {
+        throw runtime_error("Error writing file.");
+    }
+    file.close();
+}
