@@ -26,6 +26,9 @@ public:
     virtual uint8_t getTag() const { return 0x00; };
     const uint64_t &getLength() const { return length; };
     ByteVector getContents() const;
+    virtual ByteVector toByteVector() const;
+
+    virtual void anonymize(){};
 
 protected:
     uint64_t length;
@@ -96,6 +99,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x82;
     uint8_t getTag() const { return tag; }
+    void anonymize();
 };
 
 class PNM : public MFERData // Patient name
@@ -104,6 +108,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x81;
     uint8_t getTag() const { return tag; }
+    void anonymize();
 };
 
 class AGE : public MFERData // Patient age
@@ -113,6 +118,7 @@ public:
     static const uint8_t tag = 0x83;
     uint8_t getTag() const { return tag; }
     std::string getBirthDate(ByteOrder byteOrder) const;
+    void anonymize();
 };
 
 class SEX : public MFERData // Patient sex/gender
@@ -122,6 +128,7 @@ public:
     static const uint8_t tag = 0x84;
     uint8_t getTag() const { return tag; }
     std::string getPatientSex() const;
+    void anonymize();
 };
 
 class IVL : public MFERData // Sampling interval
@@ -320,6 +327,7 @@ public:
     ATT(DataStack *dataStack);
     std::vector<std::unique_ptr<MFERData>> getAttributes() const;
     Channel getChannel(ByteOrder byteOrder) const;
+    virtual ByteVector toByteVector() const;
 
 private:
     uint8_t channelIndex;
@@ -333,9 +341,11 @@ public:
     static const uint8_t tag = 0x1E;
     uint8_t getTag() const { return tag; }
     WAV(DataStack *dataStack);
+    virtual ByteVector toByteVector() const;
 
 private:
     uint8_t wordLength;
+    ByteVector lengthBytes;
 };
 
 class END : public MFERData // End of file

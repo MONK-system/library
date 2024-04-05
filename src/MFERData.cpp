@@ -100,6 +100,15 @@ ByteVector MFERData::getContents() const
     return contents;
 }
 
+ByteVector MFERData::toByteVector() const
+{
+    ByteVector byteVector;
+    byteVector.push_back(getTag());
+    byteVector.push_back(length);
+    byteVector.insert(byteVector.end(), contents.begin(), contents.end());
+    return byteVector;
+}
+
 std::string MFERData::toString(Encoding encoding) const
 {
     return contents.toString(encoding);
@@ -135,6 +144,16 @@ std::string TIM::getMeasurementTime(ByteOrder byteOrder) const
     return stream.str();
 }
 
+void PID::anonymize()
+{
+    contents = ByteVector(length, 0x00);
+}
+
+void PNM::anonymize()
+{
+    contents = ByteVector(length, 0x00);
+}
+
 std::string AGE::getBirthDate(ByteOrder byteOrder) const
 {
     DataStack dataStack(contents);
@@ -160,12 +179,22 @@ std::string AGE::getBirthDate(ByteOrder byteOrder) const
     return stream.str();
 }
 
+void AGE::anonymize()
+{
+    contents = ByteVector(length, 0xFF);
+}
+
 std::string SEX::getPatientSex() const
 {
     return contents[0] == 0x00   ? "Unknown"
            : contents[0] == 0x01 ? "Male"
            : contents[0] == 0x02 ? "Female"
                                  : "Other";
+}
+
+void SEX::anonymize()
+{
+    contents = ByteVector(length, 0x00);
 }
 
 float IVL::getSamplingInterval() const
@@ -252,11 +281,32 @@ Channel ATT::getChannel(ByteOrder byteOrder) const
     return channel;
 }
 
+ByteVector ATT::toByteVector() const
+{
+    ByteVector byteVector;
+    byteVector.push_back(getTag());
+    byteVector.push_back(channelIndex);
+    byteVector.push_back(length);
+    byteVector.insert(byteVector.end(), contents.begin(), contents.end());
+    return byteVector;
+}
+
 WAV::WAV(DataStack *dataStack)
 {
     wordLength = dataStack->pop_byte();
-    length = dataStack->pop_bytes<unsigned>(4);
+    lengthBytes = dataStack->pop_front((int)wordLength - 128);
+    length = lengthBytes.toInt<uint32_t>();
     contents = dataStack->pop_front(length);
+}
+
+ByteVector WAV::toByteVector() const
+{
+    ByteVector byteVector;
+    byteVector.push_back(getTag());
+    byteVector.push_back(wordLength);
+    byteVector.insert(byteVector.end(), lengthBytes.begin(), lengthBytes.end());
+    byteVector.insert(byteVector.end(), contents.begin(), contents.end());
+    return byteVector;
 }
 
 END::END(DataStack *dataStack)

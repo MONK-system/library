@@ -94,7 +94,7 @@ Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFER
                 for (auto &channel : fields.channels) // For each channel
                 {
                     std::vector<double> sequenceData = popChannelData(waveformDataStack, channel.blockLength, channel.dataType, fields.byteOrder); // Pop the channel data according to the block length and data type size
-                    channel.data.insert(channel.data.end(), sequenceData.begin(), sequenceData.end());                                        // Add the sequence data to the channel data
+                    channel.data.insert(channel.data.end(), sequenceData.begin(), sequenceData.end());                                             // Add the sequence data to the channel data
                 }
             }
         }
@@ -110,10 +110,18 @@ Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFER
     return fields;
 }
 
+void NihonKohdenData::anonymize()
+{
+    for (const auto &data : collection.getMFERDataVector())
+    {
+        data->anonymize();
+    }
+}
+
 void NihonKohdenData::printData() const
 {
     std::cout << std::endl
-         << collection.toString() << std::endl;
+              << collection.toString() << std::endl;
 }
 
 std::string Header::toString() const
@@ -144,6 +152,11 @@ void NihonKohdenData::printHeader() const
 {
     std::cout << "\nHeader: \n";
     std::cout << header.toString() << std::endl;
+}
+
+void NihonKohdenData::writeToBinary(const std::string &fileName) const
+{
+    FileManager::writeBinaryFile(fileName, collection.toByteVector());
 }
 
 void NihonKohdenData::writeToCsv(const std::string &fileName) const
@@ -186,7 +199,7 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
     {
         for (uint64_t j = 0; j < largestBlockLength; j++) // For each block
         {
-            std::stringstream line;                                       // Create a new line
+            std::stringstream line;                                  // Create a new line
             line << (i * largestBlockLength + j) * samplingInterval; // Write timestamp
             for (size_t k = 0; k < header.channels.size(); k++)      // For each channel
             {

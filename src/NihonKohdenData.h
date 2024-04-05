@@ -36,9 +36,11 @@ public:
     NihonKohdenData(const std::string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
     inline Header getHeader() const { return header; }
+    void anonymize();
 
     void printData() const;
     void printHeader() const;
+    void writeToBinary(const std::string &fileName) const;
     void writeToCsv(const std::string &fileName) const;
 
 private:

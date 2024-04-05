@@ -3,7 +3,7 @@ from monklib import convert_to_csv
 import argparse
 
 # Initialize the parser
-parser = argparse.ArgumentParser(description='Plot CSV data')
+parser = argparse.ArgumentParser(description='Write CSV data')
 # Add the input file as a positional argument
 parser.add_argument('input', help='Input binary data file path')
 # Add the output file as an positional argument

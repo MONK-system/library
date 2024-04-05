@@ -17,6 +17,7 @@ public:
     void closeFile();
 
     static ByteVector readBinaryFile(const std::string &fileName);
+    static void writeBinaryFile(const std::string &fileName, const ByteVector &data);
 
 private:
     std::string fileName;
