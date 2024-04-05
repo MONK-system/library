@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
-
 import os
 import sys
+
+# This function assumes standard Nihon Kohdnen file structure,
+# variances might not be accounted for (encoding differences, custom name length, etc.)
+# Script anonomizes patient ID, name, date of birth & sex
 
 def modify_binary_file(input_path, output_path):
     try:
@@ -9,27 +11,22 @@ def modify_binary_file(input_path, output_path):
         with open(input_path, 'rb') as file:
             data = file.read()
 
-        # Create a sequence of '-' characters and convert it to bytes
-        id_replacement_bytes = ('-' * 27).encode()
-        name_replacement_bytes = ('-' * 66).encode()
-        birth_date_replacement_bytes = bytes([0xFF] * 7)
-        gender_replacement_bytes = bytes([0x00])
+        # Declare indexes for the fields to be modified [index, length, replacement bytes]
+        replacement_bytes = [
+            [101, 17, bytes([0x00] * 17)], # Patient ID
+            [132, 66, bytes([0x00] * 66)], # Patient Name
+            [212, 7, bytes([0xFF] * 7)], # Patient Date of Birth
+            [221, 1, bytes([0x00])] # Patient Sex
+        ]
 
-        # Modify patient's ID
-        modified_data = data[:86] + id_replacement_bytes + data[86+27:]
-
-        # Modify patient's Name
-        modified_data = modified_data[:132] + name_replacement_bytes + modified_data[132+66:]
-
-        # Modify patient's Date of birth
-        modified_data = modified_data[:212] + birth_date_replacement_bytes + modified_data[212+7:]
-
-        # Modify patient's Gender
-        modified_data = modified_data[:221] + gender_replacement_bytes + modified_data[221+1:]
+        # Replace the bytes in the data
+        for field in replacement_bytes:
+            index, length, replacement = field
+            data = data[:index] + replacement + data[index+length:]
 
         # Write the modified data to the output file
         with open(output_path, 'wb') as file:
-            file.write(modified_data)
+            file.write(data)
 
         print("File has been modified and saved successfully.")
 
