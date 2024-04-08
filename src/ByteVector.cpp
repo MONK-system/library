@@ -41,6 +41,7 @@ std::string ByteVector::toString(Encoding encoding) const
     catch (const std::exception &e)
     {
         std::cerr << "Exception occurred in toString: " << e.what() << '\n';
+        return "ERROR";
     }
 }
 
