@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 std::string ByteVector::stringify() const
 {
@@ -19,20 +20,27 @@ std::string ByteVector::stringify() const
 // Of note, wstring_convert is deprecated in C++17, function should later be updated to use https://icu.unicode.org libraries
 std::string ByteVector::toString(Encoding encoding) const
 {
-    std::string str(this->begin(), this->end());
-    if (encoding == Encoding::ASCII || encoding == Encoding::UTF8)
+    try
     {
-        return str;
+        std::string str(this->begin(), this->end());
+        if (encoding == Encoding::ASCII || encoding == Encoding::UTF8)
+        {
+            return str;
+        }
+        else if (encoding == Encoding::UTF16LE)
+        {
+            std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0x10ffff, std::codecvt_mode::little_endian>, char16_t> converter;
+            std::u16string u16str = converter.from_bytes(str);
+            return converter.to_bytes(u16str);
+        }
+        else
+        {
+            throw std::runtime_error("Unsupported encoding.");
+        }
     }
-    else if (encoding == Encoding::UTF16LE)
+    catch (const std::exception &e)
     {
-        std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0x10ffff, std::codecvt_mode::little_endian>, char16_t> converter;
-        std::u16string u16str = converter.from_bytes(str);
-        return converter.to_bytes(u16str);
-    }
-    else
-    {
-        throw std::runtime_error("Unsupported encoding.");
+        std::cerr << "Exception occurred in toString: " << e.what() << '\n';
     }
 }
 
