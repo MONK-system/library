@@ -1,29 +1,27 @@
 #include "FileManager.h"
 #include <iostream>
 
-using namespace std;
-
-FileManager::FileManager(const string &outputFileName) : fileName(outputFileName)
+FileManager::FileManager(const std::string &outputFileName) : fileName(outputFileName)
 {
-    outputFile.open(fileName, ios::out | ios::trunc);
+    outputFile.open(fileName, std::ios::out | std::ios::trunc);
     if (!outputFile.is_open())
     {
-        cerr << "Error opening output file: " << fileName << endl;
+        std::cerr << "Error opening output file: " << fileName << std::endl;
     }
 }
 
-void FileManager::writeLine(const string &line)
+void FileManager::writeLine(const std::string &line)
 {
     if (!outputFile.is_open())
     {
-        cerr << "Output file is not open." << endl;
+        std::cerr << "Output file is not open." << std::endl;
         return;
     }
 
-    outputFile << line << endl;
+    outputFile << line << std::endl;
 }
 
-void FileManager::writeLines(const vector<string> &lines)
+void FileManager::writeLines(const std::vector<std::string> &lines)
 {
     for (const auto &line : lines)
     {
@@ -47,43 +45,43 @@ FileManager::~FileManager()
 }
 
 // Implementation of readBinaryFile static method
-ByteVector FileManager::readBinaryFile(const string &fileName)
+ByteVector FileManager::readBinaryFile(const std::string &fileName)
 {
-    ifstream file(fileName, ios::binary);
+    std::ifstream file(fileName, std::ios::binary);
 
     if (!file.is_open())
     {
-        throw runtime_error("Error opening file.");
+        throw std::runtime_error("Error opening file.");
     }
 
     // Read file length
-    file.seekg(0, ios::end);
+    file.seekg(0, std::ios::end);
     uint64_t length = file.tellg();
-    file.seekg(0, ios::beg);
+    file.seekg(0, std::ios::beg);
 
     // Assign bytes to vector
     ByteVector dataVector(length);
     if (!file.read(reinterpret_cast<char *>(dataVector.data()), dataVector.size()))
     {
-        throw runtime_error("Error reading file.");
+        throw std::runtime_error("Error reading file.");
     }
     file.close();
 
     return dataVector;
 }
 
-void FileManager::writeBinaryFile(const string &fileName, const ByteVector &data)
+void FileManager::writeBinaryFile(const std::string &fileName, const ByteVector &data)
 {
-    ofstream file(fileName, ios::binary);
+    std::ofstream file(fileName, std::ios::binary);
 
     if (!file.is_open())
     {
-        throw runtime_error("Error opening file.");
+        throw std::runtime_error("Error opening file.");
     }
 
     if (!file.write(reinterpret_cast<const char *>(data.data()), data.size()))
     {
-        throw runtime_error("Error writing file.");
+        throw std::runtime_error("Error writing file.");
     }
     file.close();
 }
