@@ -116,6 +116,7 @@ void NihonKohdenData::anonymize()
     {
         data->anonymize();
     }
+    header = collectDataFields(collection.getMFERDataVector());
 }
 
 void NihonKohdenData::printData() const
