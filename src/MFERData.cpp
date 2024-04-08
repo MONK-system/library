@@ -60,7 +60,9 @@ std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
     case SEN::tag:
         return std::make_unique<SEN>(dataStack);
     default:
-        throw std::invalid_argument("Invalid tag (int): " + (int)byte);
+        std::stringstream stream;
+        stream << "Invalid tag (int): " << (int)byte;
+        throw std::invalid_argument(stream.str());
     }
 }
 
