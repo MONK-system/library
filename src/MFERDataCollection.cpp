@@ -25,11 +25,13 @@ std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVe
         {
             std::unique_ptr<MFERData> data = parseMFERData(&dataBlock);
 
+            uint8_t tag = data->getTag();
+
             // Add to collection
             collection.push_back(std::move(data));
 
             // Exit if at end of file (tag 80)
-            if (dataBlock.size() <= 0)
+            if (dataBlock.size() <= 0 || tag == 128)
             {
                 break;
             }
