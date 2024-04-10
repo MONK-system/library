@@ -35,7 +35,7 @@ public:
     NihonKohdenData(ByteVector dataVector);
     NihonKohdenData(const std::string &fileName) : NihonKohdenData(FileManager::readBinaryFile(fileName)){};
 
-    inline Header getHeader() const { return header; }
+    inline Header getHeader() const { return collectDataFields(collection.getMFERDataVector()); }
     void anonymize();
 
     void printData() const;
@@ -45,9 +45,8 @@ public:
 
 private:
     MFERDataCollection collection;
-    Header header;
 
-    Header collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector);
+    Header collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector) const;
 };
 
 #endif
