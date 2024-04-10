@@ -10,10 +10,9 @@ std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, D
 NihonKohdenData::NihonKohdenData(ByteVector dataVector)
 {
     collection = MFERDataCollection(dataVector);
-    header = collectDataFields(collection.getMFERDataVector());
 }
 
-Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector)
+Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector) const
 {
     Header fields;
 
@@ -116,7 +115,6 @@ void NihonKohdenData::anonymize()
     {
         data->anonymize();
     }
-    header = collectDataFields(collection.getMFERDataVector());
 }
 
 void NihonKohdenData::printData() const
@@ -151,6 +149,7 @@ std::string Header::toString() const
 
 void NihonKohdenData::printHeader() const
 {
+    Header header = collectDataFields(collection.getMFERDataVector());
     std::cout << "\nHeader: \n";
     std::cout << header.toString() << std::endl;
 }
@@ -162,6 +161,7 @@ void NihonKohdenData::writeToBinary(const std::string &fileName) const
 
 void NihonKohdenData::writeToCsv(const std::string &fileName) const
 {
+    Header header = collectDataFields(collection.getMFERDataVector());
     std::cout << "\nWriting waveform data to " << fileName << std::endl;
     FileManager file(fileName);
 
