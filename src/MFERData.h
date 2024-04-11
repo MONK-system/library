@@ -233,8 +233,8 @@ enum class Lead : uint16_t // 2 bytes
     ECG_MCL = 0x005B,     // ECG MCL (Modified chest lead)
     ECG_ECG1 = 0x0001,    // ECG ECG1
     ECG_ECG2 = 0x0002,    // ECG ECG2
-    ECG_TRACE_1 = 0xC002, // ECG Trace 1
-    ECG_TRACE_2 = 0xC003, // ECG Trace 2
+    ECG_TRACE_1 = 0xC003, // ECG Trace 1
+    ECG_TRACE_2 = 0xC004, // ECG Trace 2
 
     // Other leads
     RESP = 0xC005,       // Respiration
