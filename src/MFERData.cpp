@@ -134,9 +134,9 @@ uint8_t WFM::getWaveformType() const
 std::string TIM::getMeasurementTime(ByteOrder byteOrder) const
 {
     DataStack dataStack(contents);
-    tm timeStruct = {};
+    std::tm timeStruct = {};
     timeStruct.tm_year = dataStack.pop_value<uint16_t>(byteOrder) - 1900;
-    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mon = dataStack.pop_byte() - 1;
     timeStruct.tm_mday = dataStack.pop_byte();
     timeStruct.tm_hour = dataStack.pop_byte();
     timeStruct.tm_min = dataStack.pop_byte();
