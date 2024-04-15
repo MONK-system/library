@@ -1,6 +1,5 @@
 #include "ByteVector.h"
 #include <pybind11/pybind11.h>
-#include <codecvt>
 #include <cstdint>
 #include <vector>
 #include <sstream>
@@ -31,7 +30,6 @@ std::string ByteVector::toString(Encoding encoding) const
         }
         else if (encoding == Encoding::UTF16LE)
         {
-            
             return py::bytes(str).attr("decode")(py::str("utf-16-le")).cast<std::string>();
         }
         else

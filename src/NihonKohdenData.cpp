@@ -1,5 +1,4 @@
 #include "NihonKohdenData.h"
-
 #include <iostream>
 #include <cstdint>
 #include <sstream>
@@ -22,7 +21,7 @@ Header NihonKohdenData::collectDataFields(const std::vector<std::unique_ptr<MFER
     {
         if (PRE *pre = dynamic_cast<PRE *>(data.get()))
         {
-            fields.preamble = pre->getContents().toString();
+            fields.preamble = pre->toString();
         }
         else if (BLE *ble = dynamic_cast<BLE *>(data.get()))
         {
