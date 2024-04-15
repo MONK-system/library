@@ -1,9 +1,12 @@
 #include "ByteVector.h"
+#include <pybind11/pybind11.h>
 #include <codecvt>
 #include <cstdint>
 #include <vector>
 #include <sstream>
 #include <iostream>
+
+namespace py = pybind11;
 
 std::string ByteVector::stringify() const
 {
@@ -17,7 +20,6 @@ std::string ByteVector::stringify() const
     return string;
 }
 
-// Of note, wstring_convert is deprecated in C++17, function should later be updated to use https://icu.unicode.org libraries
 std::string ByteVector::toString(Encoding encoding) const
 {
     try
@@ -29,9 +31,8 @@ std::string ByteVector::toString(Encoding encoding) const
         }
         else if (encoding == Encoding::UTF16LE)
         {
-            std::wstring_convert<std::codecvt_utf8_utf16<char16_t, 0x10ffff, std::codecvt_mode::little_endian>, char16_t> converter;
-            std::u16string u16str = converter.from_bytes(str);
-            return converter.to_bytes(u16str);
+            
+            return py::bytes(str).attr("decode")(py::str("utf-16-le")).cast<std::string>();
         }
         else
         {
