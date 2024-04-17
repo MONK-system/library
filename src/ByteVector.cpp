@@ -26,7 +26,7 @@ std::string ByteVector::toString(Encoding encoding) const
         std::string str(this->begin(), this->end());
         if (encoding == Encoding::ASCII || encoding == Encoding::UTF8)
         {
-            return str;
+            return py::bytes(str).attr("decode")(py::str("utf-8")).cast<std::string>();;
         }
         else if (encoding == Encoding::UTF16LE)
         {
