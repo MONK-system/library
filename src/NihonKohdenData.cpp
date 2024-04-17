@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdint>
 #include <sstream>
+#include <algorithm>
 
 // Forward declaration
 std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, DataType dataType, ByteOrder byteOrder);
@@ -116,6 +117,18 @@ void NihonKohdenData::anonymize()
     }
 }
 
+void NihonKohdenData::setChannelSelection(int index, bool active)
+{
+    if (index < 0 || index >= channelSelection.size())
+    {
+        throw std::runtime_error("Channel index out of range");
+    }
+    else
+    {
+        channelSelection[index] = active;
+    }
+}
+
 void NihonKohdenData::printData() const
 {
     std::cout << std::endl
@@ -164,11 +177,21 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
     std::cout << "\nWriting waveform data to " << fileName << std::endl;
     FileManager file(fileName);
 
+    // Get channel selection
+    std::vector<Channel> outputChannels;
+    for (int i = 0; i < header.channels.size(); i++)
+    {
+        if (channelSelection[i])
+        {
+            outputChannels.push_back(header.channels[i]);
+        }
+    }
+
     // Write csv header & get lowest sampling interval
     std::stringstream channelsHeader;
     uint64_t largestBlockLength = 0;
     double samplingInterval = header.samplingInterval;
-    for (auto channel : header.channels)
+    for (auto channel : outputChannels)
     {
         channelsHeader << ", " << channel.leadInfo.attribute << ": " << channel.leadInfo.samplingResolution;
         if (channel.blockLength > largestBlockLength)
@@ -187,10 +210,10 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
     std::vector<std::string> lines;
     lines.reserve(header.sequenceCount * largestBlockLength);
 
-    std::vector<int> channelIntervals(header.channels.size());
-    for (size_t i = 0; i < header.channels.size(); i++)
+    std::vector<int> channelIntervals(outputChannels.size());
+    for (size_t i = 0; i < outputChannels.size(); i++)
     {
-        channelIntervals[i] = largestBlockLength / header.channels[i].blockLength;
+        channelIntervals[i] = largestBlockLength / outputChannels[i].blockLength;
     }
 
     std::cout << "0 / " << header.sequenceCount << " sequences processed";
@@ -201,17 +224,17 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
         {
             std::stringstream line;                                  // Create a new line
             line << (i * largestBlockLength + j) * samplingInterval; // Write timestamp
-            for (size_t k = 0; k < header.channels.size(); k++)      // For each channel
+            for (size_t k = 0; k < outputChannels.size(); k++)       // For each channel
             {
                 if (channelIntervals[k] == 1) // If the channel has the same block length as the largest block length, then write the value
                 {
-                    line << ", " << header.channels[k].data[i * largestBlockLength + j];
+                    line << ", " << outputChannels[k].data[i * largestBlockLength + j];
                 }
                 else // If the channel has a different block length, then write the value if the index is a multiple of the interval
                 {
                     if (j % channelIntervals[k] == 0)
                     {
-                        line << ", " << header.channels[k].data[(i * largestBlockLength + j) / channelIntervals[k]];
+                        line << ", " << outputChannels[k].data[(i * largestBlockLength + j) / channelIntervals[k]];
                     }
                     else
                     {

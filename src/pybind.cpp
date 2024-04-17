@@ -61,6 +61,7 @@ PYBIND11_MODULE(monklib, m)
         .def("getHeader", &NihonKohdenData::getHeader,
              py::return_value_policy::copy, "Get the header of the data")
         .def("anonymize", &NihonKohdenData::anonymize, "Anonymize the data")
+        .def("setChannelSelection", &NihonKohdenData::setChannelSelection, "Set the channel selection at index to active")
         .def("printData", &NihonKohdenData::printData, "Print the data in hex format")
         .def("printHeader", &NihonKohdenData::printHeader, "Print the header")
         .def("writeToBinary", &NihonKohdenData::writeToBinary, "Write the data to a binary file")

@@ -37,6 +37,7 @@ public:
 
     inline Header getHeader() const { return collectDataFields(collection.getMFERDataVector()); }
     void anonymize();
+    void setChannelSelection(int index, bool active);
 
     void printData() const;
     void printHeader() const;
@@ -45,6 +46,7 @@ public:
 
 private:
     MFERDataCollection collection;
+    std::vector<bool> channelSelection = std::vector<bool>(17, true);
 
     Header collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector) const;
 };
