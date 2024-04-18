@@ -29,6 +29,12 @@ struct Header
     std::string toString() const;
 };
 
+struct Interval
+{
+    double start = 0;
+    double end = 0;
+};
+
 class NihonKohdenData
 {
 public:
@@ -38,6 +44,7 @@ public:
     inline Header getHeader() const { return collectDataFields(collection.getMFERDataVector()); }
     void anonymize();
     void setChannelSelection(int index, bool active);
+    void setIntervalSelection(double start = 0, double end = 0);
 
     void printHexData() const;
     void printHeader() const;
@@ -47,6 +54,7 @@ public:
 private:
     MFERDataCollection collection;
     std::vector<bool> channelSelection = std::vector<bool>(17, true);
+    Interval intervalSelection;
 
     Header collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector) const;
 };

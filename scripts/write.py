@@ -1,5 +1,5 @@
 # Write the data from a MFER file to another CSV file
-from monklib import convert_to_csv
+from monklib import Data
 import argparse
 
 # Initialize the parser
@@ -11,4 +11,6 @@ parser.add_argument('output', help='Output CSV file path')
 # Parse the command line arguments
 args = parser.parse_args()
 
-convert_to_csv(args.input, args.output)
+data = Data(args.input)
+data.setIntervalSelection(719, 0)
+data.writeToCsv(args.output)
