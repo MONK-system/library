@@ -19,14 +19,14 @@ public:
         return mferDataVector;
     };
     inline size_t size() const { return mferDataVector.size(); };
-    std::string toString(uint64_t maxByteLength = 100) const;
+    std::string toHexString(uint64_t maxByteLength = 100) const;
     ByteVector toByteVector() const;
 
 private:
     std::vector<std::unique_ptr<MFERData>> mferDataVector;
 };
 
-std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left);
+std::string collectionToHexString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left);
 std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVector);
 
 #endif

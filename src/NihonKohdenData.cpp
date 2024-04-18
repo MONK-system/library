@@ -129,10 +129,28 @@ void NihonKohdenData::setChannelSelection(int index, bool active)
     }
 }
 
-void NihonKohdenData::printData() const
+void NihonKohdenData::setIntervalSelection(double start, double end)
+{
+    if (start < 0)
+    {
+        throw std::runtime_error("Start interval must be greater than or equal to 0");
+    }
+    if (end < 0)
+    {
+        throw std::runtime_error("End interval must be greater than or equal to 0");
+    }
+    if ((end != 0) && (start > end))
+    {
+        throw std::runtime_error("Start interval must be 0 or less than or equal to end interval");
+    }
+    intervalSelection.start = start;
+    intervalSelection.end = end;
+}
+
+void NihonKohdenData::printHexData() const
 {
     std::cout << std::endl
-              << collection.toString() << std::endl;
+              << collection.toHexString() << std::endl;
 }
 
 std::string Header::toString() const
@@ -206,6 +224,14 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
 
     file.writeLine(headerStream.str()); // Write header to file
 
+    // Get interval timestamps
+    double start = intervalSelection.start;
+    double end = intervalSelection.end;
+    if (intervalSelection.end == 0)
+    {
+        end = header.sequenceCount * largestBlockLength * samplingInterval;
+    }
+
     // Write waveform data
     std::vector<std::string> lines;
     lines.reserve(header.sequenceCount * largestBlockLength);
@@ -222,27 +248,31 @@ void NihonKohdenData::writeToCsv(const std::string &fileName) const
     {
         for (uint64_t j = 0; j < largestBlockLength; j++) // For each block
         {
-            std::stringstream line;                                  // Create a new line
-            line << (i * largestBlockLength + j) * samplingInterval; // Write timestamp
-            for (size_t k = 0; k < outputChannels.size(); k++)       // For each channel
+            double timestamp = (i * largestBlockLength + j) * samplingInterval; // Calculate timestamp
+            if (timestamp >= start && timestamp <= end)                         // If timestamp is within interval
             {
-                if (channelIntervals[k] == 1) // If the channel has the same block length as the largest block length, then write the value
+                std::stringstream line;                            // Create a new line
+                line << timestamp;                                 // Write timestamp
+                for (size_t k = 0; k < outputChannels.size(); k++) // For each channel
                 {
-                    line << ", " << outputChannels[k].data[i * largestBlockLength + j];
-                }
-                else // If the channel has a different block length, then write the value if the index is a multiple of the interval
-                {
-                    if (j % channelIntervals[k] == 0)
+                    if (channelIntervals[k] == 1) // If the channel has the same block length as the largest block length, then write the value
                     {
-                        line << ", " << outputChannels[k].data[(i * largestBlockLength + j) / channelIntervals[k]];
+                        line << ", " << outputChannels[k].data[i * largestBlockLength + j];
                     }
-                    else
+                    else // If the channel has a different block length, then write the value if the index is a multiple of the interval
                     {
-                        line << ", ";
+                        if (j % channelIntervals[k] == 0)
+                        {
+                            line << ", " << outputChannels[k].data[(i * largestBlockLength + j) / channelIntervals[k]];
+                        }
+                        else
+                        {
+                            line << ", ";
+                        }
                     }
                 }
+                lines.push_back(line.str());
             }
-            lines.push_back(line.str());
         }
         std::cout << "\r" << (i + 1) << " / " << header.sequenceCount << " sequences processed";
     }

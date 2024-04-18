@@ -8,10 +8,10 @@ MFERDataCollection::MFERDataCollection(ByteVector dataVector)
     mferDataVector = parseMFERDataCollection(dataVector);
 }
 
-std::string MFERDataCollection::toString(uint64_t maxByteLength) const
+std::string MFERDataCollection::toHexString(uint64_t maxByteLength) const
 {
     MFERData::maxByteLength = maxByteLength;
-    return collectionToString(&mferDataVector, "");
+    return collectionToHexString(&mferDataVector, "");
 }
 
 std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVector)
@@ -44,7 +44,7 @@ std::vector<std::unique_ptr<MFERData>> parseMFERDataCollection(ByteVector dataVe
     return collection;
 }
 
-std::string collectionToString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left)
+std::string collectionToHexString(const std::vector<std::unique_ptr<MFERData>> *collection, std::string left)
 {
     std::ostringstream stream;
     stream << MFERData::headerString() << "\n"
