@@ -39,7 +39,7 @@ public:
     void anonymize();
     void setChannelSelection(int index, bool active);
 
-    void printData() const;
+    void printHexData() const;
     void printHeader() const;
     void writeToBinary(const std::string &fileName) const;
     void writeToCsv(const std::string &fileName) const;

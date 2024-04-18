@@ -129,10 +129,10 @@ void NihonKohdenData::setChannelSelection(int index, bool active)
     }
 }
 
-void NihonKohdenData::printData() const
+void NihonKohdenData::printHexData() const
 {
     std::cout << std::endl
-              << collection.toString() << std::endl;
+              << collection.toHexString() << std::endl;
 }
 
 std::string Header::toString() const
