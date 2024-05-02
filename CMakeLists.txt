@@ -6,9 +6,8 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 # Include pybind11
 add_subdirectory(pybind11)
 
-file(GLOB SOURCES "src/*.cpp")
-
-file(GLOB HEADERS "src/*.h")
+add_subdirectory(core)
 
 # Define module
-pybind11_add_module(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+pybind11_add_module(${PROJECT_NAME} bindings/pybind.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE corelib)
