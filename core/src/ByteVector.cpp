@@ -21,12 +21,16 @@ std::string ByteVector::stringify() const
 
 std::string ByteVector::toString(Encoding encoding) const
 {
+    if (Py_IsInitialized() == 0) // Initialize Python if not already initialized
+    {
+        Py_Initialize();
+    }
     try
     {
         std::string str(this->begin(), this->end());
         if (encoding == Encoding::ASCII || encoding == Encoding::UTF8)
         {
-            return py::bytes(str).attr("decode")(py::str("utf-8")).cast<std::string>();;
+            return py::bytes(str).attr("decode")(py::str("utf-8")).cast<std::string>();
         }
         else if (encoding == Encoding::UTF16LE)
         {
@@ -37,10 +41,9 @@ std::string ByteVector::toString(Encoding encoding) const
             throw std::runtime_error("Unsupported encoding.");
         }
     }
-    catch (const std::exception &e)
+    catch (const py::error_already_set &e)
     {
-        std::cerr << "Exception occurred in toString: " << e.what() << '\n';
-        return "ERROR";
+        throw std::runtime_error("Python error occurred in ByteVector::toString");
     }
 }
 

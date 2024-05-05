@@ -131,7 +131,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='monklib',
-    version='0.2.1',
+    version='0.2.2',
     author='Sondre Espeland',
     author_email='sondesp@ntnu.no',
     description='A Python library for reading Nihon Kohden data',
