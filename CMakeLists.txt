@@ -3,6 +3,10 @@ project(monklib)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 
+set(CMAKE_BUILD_WITH_INSTALL_RPATH ON) # Use RPATH for installed targets during build
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Enable position independent code
+
 enable_testing() # Enable testing
 
 # Fetch Google Test
