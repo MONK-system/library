@@ -3,8 +3,14 @@
 
 DataStack::DataStack(const ByteVector dataVector)
 {
-    // Transfer data to deque
-    data.insert(data.end(), dataVector.begin(), dataVector.end());
+    try
+    {
+        data.insert(data.end(), dataVector.begin(), dataVector.end()); // Transfer data to deque
+    }
+    catch (const std::exception &e)
+    {
+        throw std::runtime_error("Error while initializing DataStack: " + std::string(e.what()));
+    }
 }
 
 ByteVector DataStack::pop_front(uint64_t num)
@@ -24,11 +30,19 @@ ByteVector DataStack::pop_front(uint64_t num)
 
 uint8_t DataStack::pop_byte()
 {
+    if (data.empty())
+    {
+        throw std::runtime_error("Error while reading data, stack is empty.");
+    }
     return pop_front().toInt<uint8_t>();
 }
 
 uint8_t DataStack::read_byte() const
 {
+    if (data.empty())
+    {
+        throw std::runtime_error("Error while reading data, stack is empty.");
+    }
     return data.front();
 }
 

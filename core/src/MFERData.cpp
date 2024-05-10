@@ -11,58 +11,65 @@
 
 std::unique_ptr<MFERData> parseMFERData(DataStack *dataStack)
 {
-    uint8_t byte = dataStack->pop_byte();
-
-    switch (byte)
+    try
     {
-    case PRE::tag:
-        return std::make_unique<PRE>(dataStack);
-    case BLE::tag:
-        return std::make_unique<BLE>(dataStack);
-    case TXC::tag:
-        return std::make_unique<TXC>(dataStack);
-    case MAN::tag:
-        return std::make_unique<MAN>(dataStack);
-    case WFM::tag:
-        return std::make_unique<WFM>(dataStack);
-    case TIM::tag:
-        return std::make_unique<TIM>(dataStack);
-    case PID::tag:
-        return std::make_unique<PID>(dataStack);
-    case PNM::tag:
-        return std::make_unique<PNM>(dataStack);
-    case AGE::tag:
-        return std::make_unique<AGE>(dataStack);
-    case SEX::tag:
-        return std::make_unique<SEX>(dataStack);
-    case IVL::tag:
-        return std::make_unique<IVL>(dataStack);
-    case EVT::tag:
-        return std::make_unique<EVT>(dataStack);
-    case SEQ::tag:
-        return std::make_unique<SEQ>(dataStack);
-    case CHN::tag:
-        return std::make_unique<CHN>(dataStack);
-    case NUL::tag:
-        return std::make_unique<NUL>(dataStack);
-    case ATT::tag:
-        return std::make_unique<ATT>(dataStack);
-    case WAV::tag:
-        return std::make_unique<WAV>(dataStack);
-    case END::tag:
-        return std::make_unique<END>(dataStack);
-    case LDN::tag:
-        return std::make_unique<LDN>(dataStack);
-    case DTP::tag:
-        return std::make_unique<DTP>(dataStack);
-    case BLK::tag:
-        return std::make_unique<BLK>(dataStack);
-    case SEN::tag:
-        return std::make_unique<SEN>(dataStack);
-    default:
-        std::stringstream stream;
-        stream << "Invalid tag (int): " << (int)byte;
-        throw std::invalid_argument(stream.str());
+        uint8_t byte = dataStack->pop_byte();
+
+        switch (byte)
+        {
+        case PRE::tag:
+            return std::make_unique<PRE>(dataStack);
+        case BLE::tag:
+            return std::make_unique<BLE>(dataStack);
+        case TXC::tag:
+            return std::make_unique<TXC>(dataStack);
+        case MAN::tag:
+            return std::make_unique<MAN>(dataStack);
+        case WFM::tag:
+            return std::make_unique<WFM>(dataStack);
+        case TIM::tag:
+            return std::make_unique<TIM>(dataStack);
+        case PID::tag:
+            return std::make_unique<PID>(dataStack);
+        case PNM::tag:
+            return std::make_unique<PNM>(dataStack);
+        case AGE::tag:
+            return std::make_unique<AGE>(dataStack);
+        case SEX::tag:
+            return std::make_unique<SEX>(dataStack);
+        case IVL::tag:
+            return std::make_unique<IVL>(dataStack);
+        case EVT::tag:
+            return std::make_unique<EVT>(dataStack);
+        case SEQ::tag:
+            return std::make_unique<SEQ>(dataStack);
+        case CHN::tag:
+            return std::make_unique<CHN>(dataStack);
+        case NUL::tag:
+            return std::make_unique<NUL>(dataStack);
+        case ATT::tag:
+            return std::make_unique<ATT>(dataStack);
+        case WAV::tag:
+            return std::make_unique<WAV>(dataStack);
+        case END::tag:
+            return std::make_unique<END>(dataStack);
+        case LDN::tag:
+            return std::make_unique<LDN>(dataStack);
+        case DTP::tag:
+            return std::make_unique<DTP>(dataStack);
+        case BLK::tag:
+            return std::make_unique<BLK>(dataStack);
+        case SEN::tag:
+            return std::make_unique<SEN>(dataStack);
+        default:
+            std::stringstream stream;
+            stream << "Invalid tag (int): " << (int)byte;
+            throw std::invalid_argument(stream.str());
+        }
+    }
+    catch (const std::exception &e)
+    {
+        throw std::runtime_error("Error while parsing MFERData: " + std::string(e.what()));
     }
 }
 
@@ -142,7 +149,14 @@ std::string TIM::getMeasurementTime(ByteOrder byteOrder) const
     timeStruct.tm_min = dataStack.pop_byte();
     timeStruct.tm_sec = dataStack.pop_byte();
     std::ostringstream stream;
-    stream << std::put_time(&timeStruct, "%Y-%m-%dT%H:%M:%S");
+    try
+    {
+        stream << std::put_time(&timeStruct, "%Y-%m-%dT%H:%M:%S");
+    }
+    catch (const std::exception &e)
+    {
+        stream << "Invalid time format.";
+    }
     return stream.str();
 }
 
@@ -174,10 +188,17 @@ std::string AGE::getBirthDate(ByteOrder byteOrder) const
     }
     tm timeStruct = {};
     timeStruct.tm_year = year - 1900;
-    timeStruct.tm_mon = dataStack.pop_byte();
+    timeStruct.tm_mon = dataStack.pop_byte() - 1;
     timeStruct.tm_mday = dataStack.pop_byte();
     std::ostringstream stream;
-    stream << std::put_time(&timeStruct, "%Y-%m-%d");
+    try
+    {
+        stream << std::put_time(&timeStruct, "%Y-%m-%d");
+    }
+    catch (const std::exception &e)
+    {
+        stream << "Invalid time format.";
+    }
     return stream.str();
 }
 
