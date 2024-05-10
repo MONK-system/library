@@ -1,5 +1,5 @@
 #include "ByteVector.h"
-#include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
 #include <cstdint>
 #include <vector>
 #include <sstream>
@@ -21,10 +21,9 @@ std::string ByteVector::stringify() const
 
 std::string ByteVector::toString(Encoding encoding) const
 {
-    if (Py_IsInitialized() == 0) // Initialize Python if not already initialized
-    {
-        Py_Initialize();
-    }
+    InterpreterGuard guard(const_cast<ByteVector *>(this)); // Finalize Python interpreter when out of scope
+    initializeInterpreter();                                // Initialize Python interpreter
+
     try
     {
         std::string str(this->begin(), this->end());
@@ -44,6 +43,32 @@ std::string ByteVector::toString(Encoding encoding) const
     catch (const py::error_already_set &e)
     {
         throw std::runtime_error("Python error occurred in ByteVector::toString");
+    }
+}
+
+void ByteVector::initializeInterpreter() const
+{
+    if (initializeCount++ == 0) // If first initialization
+    {
+        if (Py_IsInitialized() == 0) // If Python interpreter is not initialized
+        {
+            py::initialize_interpreter(); // Initialize Python interpreter
+        }
+        else // If Python interpreter is already initialized
+        {
+            initializeCount++; // Increment the count to avoid re-initialization
+        }
+    }
+}
+
+void ByteVector::finalizeInterpreter() const
+{
+    if (--initializeCount == 0) // If last finalization
+    {
+        if (Py_IsInitialized() != 0) // If Python interpreter is initialized
+        {
+            py::finalize_interpreter(); // Finalize Python interpreter
+        }
     }
 }
 
