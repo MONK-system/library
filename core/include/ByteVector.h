@@ -21,9 +21,6 @@ enum class Encoding
     UTF16LE
 };
 
-// String to encoding
-Encoding stringToEncoding(const std::string &encoding);
-
 // ByteVector class to represent a vector of bytes
 class ByteVector : public std::vector<uint8_t>
 {

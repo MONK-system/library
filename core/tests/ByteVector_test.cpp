@@ -1,15 +1,6 @@
 #include <gtest/gtest.h>
 #include "ByteVector.h"
 
-// Test for stringToEncoding function
-TEST(ByteVectorTest, StringToEncoding)
-{
-    EXPECT_EQ(Encoding::ASCII, stringToEncoding("ASCII"));
-    EXPECT_EQ(Encoding::UTF8, stringToEncoding("UTF-8"));
-    EXPECT_EQ(Encoding::UTF16LE, stringToEncoding("UTF-16LE"));
-    EXPECT_THROW(stringToEncoding("Unsupported"), std::runtime_error);
-}
-
 // Test for stringify method
 TEST(ByteVectorTest, Stringify)
 {

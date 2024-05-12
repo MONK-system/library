@@ -130,7 +130,23 @@ ByteOrder BLE::getByteOrder() const
 
 Encoding TXC::getEncoding() const
 {
-    return stringToEncoding(contents.toString());
+    std::string encoding = contents.toString();
+    if (encoding.find("ASCII") != std::string::npos || encoding.find("ANSI X3.4") != std::string::npos)
+    {
+        return Encoding::ASCII;
+    }
+    else if (encoding.find("UTF-8") != std::string::npos)
+    {
+        return Encoding::UTF8;
+    }
+    else if (encoding.find("UTF-16LE") != std::string::npos)
+    {
+        return Encoding::UTF16LE;
+    }
+    else
+    {
+        throw std::runtime_error("Unsupported encoding.");
+    }
 };
 
 uint8_t WFM::getWaveformType() const
