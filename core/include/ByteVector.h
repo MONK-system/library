@@ -95,7 +95,7 @@ private:
 class InterpreterGuard
 {
 public:
-    InterpreterGuard(ByteVector *ptr) : ptr_(ptr) {}
+    InterpreterGuard(ByteVector *ptr) : ptr_(ptr) { ptr_->initializeInterpreter(); }
     ~InterpreterGuard() { ptr_->finalizeInterpreter(); }
 
 private:

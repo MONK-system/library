@@ -21,8 +21,7 @@ std::string ByteVector::stringify() const
 
 std::string ByteVector::toString(Encoding encoding) const
 {
-    InterpreterGuard guard(const_cast<ByteVector *>(this)); // Finalize Python interpreter when out of scope
-    initializeInterpreter();                                // Initialize Python interpreter
+    InterpreterGuard guard(const_cast<ByteVector *>(this)); // Initialize embedded python interpreter and finalize when out of scope
 
     try
     {
