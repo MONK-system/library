@@ -70,23 +70,3 @@ void ByteVector::finalizeInterpreter() const
         }
     }
 }
-
-Encoding stringToEncoding(const std::string &encoding)
-{
-    if (encoding.find("ASCII") != std::string::npos || encoding.find("ANSI X3.4") != std::string::npos)
-    {
-        return Encoding::ASCII;
-    }
-    else if (encoding.find("UTF-8") != std::string::npos)
-    {
-        return Encoding::UTF8;
-    }
-    else if (encoding.find("UTF-16LE") != std::string::npos)
-    {
-        return Encoding::UTF16LE;
-    }
-    else
-    {
-        throw std::runtime_error("Unsupported encoding.");
-    }
-}
