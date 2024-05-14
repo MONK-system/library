@@ -353,6 +353,13 @@ END::END(DataStack *dataStack)
     length = 0x00;
 }
 
+ByteVector END::toByteVector() const
+{
+    ByteVector byteVector;
+    byteVector.push_back(getTag());
+    return byteVector;
+}
+
 std::string END::contentsString(std::string left) const
 {
     return "| End of file.";

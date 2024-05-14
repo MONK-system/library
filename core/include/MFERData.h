@@ -354,6 +354,7 @@ public:
     static const uint8_t tag = 0x80;
     uint8_t getTag() const { return tag; }
     END(DataStack *dataStack);
+    virtual ByteVector toByteVector() const;
 
 private:
     std::string contentsString(std::string left) const;
