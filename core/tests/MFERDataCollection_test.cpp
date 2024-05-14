@@ -30,7 +30,7 @@ TEST(MFERDataCollectionTest, ToHexString)
 // Test for toByteVector method
 TEST(MFERDataCollectionTest, ToByteVector)
 {
-    ByteVector bv = {0x40, 0x03, 0x0A, 0x0B, 0x0C, 0x80, 0x00};
+    ByteVector bv = {0x40, 0x03, 0x0A, 0x0B, 0x0C, 0x80};
     MFERDataCollection collection(bv);
 
     ByteVector byteVector = collection.toByteVector();

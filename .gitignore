@@ -1,5 +1,5 @@
 /.vscode
-*.MWF
+/*.MWF
 *.exe
 *.bat
 *.o
