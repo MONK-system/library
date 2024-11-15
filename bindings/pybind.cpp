@@ -2,6 +2,7 @@
 #include "MFERData.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 
 namespace py = pybind11;
 
@@ -25,6 +26,12 @@ Header getHeader(const std::string &filename)
 
 PYBIND11_MODULE(monklib, m)
 {
+    py::add_ostream_redirect(m, "ostream_redirect");
+
+    py::enum_<ByteOrder>(m, "ByteOrder")
+        .value("ENDIAN_BIG", ByteOrder::ENDIAN_BIG)
+        .value("ENDIAN_LITTLE", ByteOrder::ENDIAN_LITTLE);
+
     py::class_<NIBPEvent>(m, "NIBPEvent")
         .def_readonly("eventCode", &NIBPEvent::eventCode)
         .def_readonly("startTime", &NIBPEvent::startTime)
@@ -64,8 +71,6 @@ PYBIND11_MODULE(monklib, m)
         .def("anonymize", &NihonKohdenData::anonymize, "Anonymize the data")
         .def("setChannelSelection", &NihonKohdenData::setChannelSelection, "Set the channel selection at index to active")
         .def("setIntervalSelection", &NihonKohdenData::setIntervalSelection, "Set the interval selection (start = 0, end = 0). Setting end to 0 will select the remaining data")
-        .def("printHexData", &NihonKohdenData::printHexData, "Print the data in hex format")
-        .def("printHeader", &NihonKohdenData::printHeader, "Print the header")
         .def("writeToBinary", &NihonKohdenData::writeToBinary, "Write the data to a binary file")
         .def("writeToCsv", &NihonKohdenData::writeToCsv, "Write the data to a csv file");
 
