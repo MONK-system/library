@@ -1,9 +1,6 @@
 # Add test files
 file(GLOB TEST_SOURCES "*_test.cpp")
 
-# Define the test data file
-set(TEST_DATA_FILE "${CMAKE_CURRENT_SOURCE_DIR}/test-file.MWF")
-
 foreach(TEST_FILE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_FILE})
