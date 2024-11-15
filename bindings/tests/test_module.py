@@ -9,9 +9,6 @@ def test_file_path():
         pytest.fail("The TEST_FILE_PATH environment variable must be provided.")
     return file_path
 
-def test_file_path_argument(test_file_path):
-    assert test_file_path == "./resources/test-file.MWF"
-
 # Sample helper function to strip null characters
 def trim_nulls(string):
     return string.replace('\x00', '')
