@@ -23,6 +23,8 @@ std::string ByteVector::toString(Encoding encoding) const
 {
     InterpreterGuard guard; // Initialize embedded python interpreter and finalize when out of scope
 
+    py::gil_scoped_acquire acquire; // Ensure GIL is held
+
     try
     {
         std::string str(this->begin(), this->end());
