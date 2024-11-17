@@ -81,22 +81,19 @@ public:
 
         return byteVector;
     }
-
-    void initializeInterpreter() const;
-    void finalizeInterpreter() const;
-
-private:
-    inline static int initializeCount = 0;
 };
 
 class InterpreterGuard
 {
 public:
-    InterpreterGuard(ByteVector *ptr) : ptr_(ptr) { ptr_->initializeInterpreter(); }
-    ~InterpreterGuard() { ptr_->finalizeInterpreter(); }
+    InterpreterGuard() { initializeInterpreter(); }
+    ~InterpreterGuard() { finalizeInterpreter(); }
 
 private:
-    ByteVector *ptr_;
+    void initializeInterpreter() const;
+    void finalizeInterpreter() const;
+    
+    inline static int initializeCount = 0;
 };
 
 #endif

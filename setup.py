@@ -131,7 +131,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='monklib',
-    version='0.2.3',
+    version='0.2.4',
     author='Sondre Espeland',
     author_email='sondesp@ntnu.no',
     description='A Python library for reading Nihon Kohden data',
@@ -139,5 +139,5 @@ setup(
     ext_modules=[CMakeExtension('monklib', sourcedir='.')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )

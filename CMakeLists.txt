@@ -22,6 +22,9 @@ FetchContent_MakeAvailable(googletest)
 # Enable Google Test macros
 include(GoogleTest)
 
+# Define the test data file
+set(TEST_DATA_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/test-file.MWF")
+
 # Include pybind11
 add_subdirectory(pybind11)
 
