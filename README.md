@@ -17,7 +17,7 @@ Some scripts that provide basic utilities can be found in [scripts/](scripts/)
 
 ### Prerequisites
 
-- **Python**: Python 3.7 or newer.
+- **Python**: Python 3.8 or newer.
 - **CMake**: Version 3.8 or newer. CMake is used to configure the build process.
 - **g++** or **MSVC**: A C++ compiler that supports C++17 standard. For g++, version 7.3 or newer is recommended. For MSVC, Visual Studio 2019 or newer is required.
 

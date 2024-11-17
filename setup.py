@@ -139,5 +139,5 @@ setup(
     ext_modules=[CMakeExtension('monklib', sourcedir='.')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )
