@@ -21,7 +21,7 @@ std::string ByteVector::stringify() const
 
 std::string ByteVector::toString(Encoding encoding) const
 {
-    InterpreterGuard guard(const_cast<ByteVector *>(this)); // Initialize embedded python interpreter and finalize when out of scope
+    InterpreterGuard guard; // Initialize embedded python interpreter and finalize when out of scope
 
     try
     {
@@ -45,7 +45,7 @@ std::string ByteVector::toString(Encoding encoding) const
     }
 }
 
-void ByteVector::initializeInterpreter() const
+void InterpreterGuard::initializeInterpreter() const
 {
     if (initializeCount++ == 0) // If first initialization
     {
@@ -60,7 +60,7 @@ void ByteVector::initializeInterpreter() const
     }
 }
 
-void ByteVector::finalizeInterpreter() const
+void InterpreterGuard::finalizeInterpreter() const
 {
     if (--initializeCount == 0) // If last finalization
     {
