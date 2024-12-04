@@ -54,7 +54,7 @@ public:
 private:
     MFERDataCollection collection;
     std::vector<bool> channelSelection = std::vector<bool>(17, true);
-    Interval intervalSelection;
+    Interval intervalSelection; // Interval selection in seconds
 
     Header collectDataFields(const std::vector<std::unique_ptr<MFERData>> &mferDataVector) const;
 };
