@@ -11,8 +11,6 @@ As of this version, the library handles:
   - Header information (optionally anonymized)
 - Anonymization of sensitive fields
 
-Some scripts that provide basic utilities can be found in [scripts/](scripts/)
-
 ## Installation
 
 ### Prerequisites
@@ -37,3 +35,11 @@ Alternatively, you can install the package directly by using:
 ```
 pip install git+https://github.com/MONK-system/library.git
 ```
+
+## Usage
+
+Some scripts that provide basic utilities can be found in [scripts/](scripts/).
+
+API documentation for the Python module can be found in [bindings/](bindings), where the exposed functionality (Python bindings) are defined in [pybind.cpp](bindings/pybind.cpp).
+
+The core C++ library is otherwise available in the [core/](core/) directory, where the [NihonKohdenData](core/include/NihonKohdenData.h) class is intended to be the library interface.
