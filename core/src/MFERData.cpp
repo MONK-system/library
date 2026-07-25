@@ -256,7 +256,7 @@ NIBPEvent EVT::getNIBPEvent(ByteOrder byteOrder) const
     NIBPEvent event;
     event.eventCode = dataStack.pop_value<uint16_t>(byteOrder);
     event.startTime = dataStack.pop_value<uint32_t>(byteOrder);
-    event.duration = dataStack.pop_value<uint16_t>(byteOrder);
+    event.duration = dataStack.pop_value<uint32_t>(byteOrder);
     event.information = dataStack.pop_front(54).toString();
     return event;
 }
@@ -314,7 +314,7 @@ Channel ATT::getChannel(ByteOrder byteOrder) const
         }
         else if (SEN *sen = dynamic_cast<SEN *>(attribute.get()))
         {
-            channel.samplingResolution = sen->getSamplingResolution();
+            channel.samplingResolution = sen->getSamplingResolution(byteOrder);
         }
     }
     return channel;
@@ -367,7 +367,16 @@ std::string END::contentsString(std::string left) const
 
 LeadInfo LDN::getLeadInfo(ByteOrder byteOrder) const
 {
-    return LeadMap.at(static_cast<Lead>(contents.toInt<uint16_t>(byteOrder)));
+    Lead lead = static_cast<Lead>(contents.toInt<uint16_t>(byteOrder));
+    auto it = LeadMap.find(lead);
+    if (it == LeadMap.end())
+    {
+        std::ostringstream oss;
+        oss << "Unknown (0x" << std::hex << std::uppercase
+            << static_cast<uint16_t>(lead) << ")";
+        return LeadInfo{lead, oss.str(), "N/A", 0};
+    }
+    return it->second;
 }
 
 DataType DTP::getDataType() const
@@ -375,11 +384,11 @@ DataType DTP::getDataType() const
     return static_cast<DataType>(contents[0]);
 }
 
-float SEN::getSamplingResolution() const
+float SEN::getSamplingResolution(ByteOrder byteOrder) const
 {
     DataStack dataStack(contents);
     dataStack.pop_front();
-    int exponent = 256 - (int)dataStack.pop_byte();
-    int base = dataStack.pop_bytes<uint16_t>(2);
+    int exponent = (int)dataStack.pop_byte() - 256;
+    int base = dataStack.pop_value<uint16_t>(byteOrder);
     return base * pow(10, exponent);
 }

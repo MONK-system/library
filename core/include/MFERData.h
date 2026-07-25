@@ -231,8 +231,8 @@ enum class Lead : uint16_t // 2 bytes
     ECG_V6 = 0x0008,      // ECG V6
     ECG_V = 0xC000,       // ECG V (Vector)
     ECG_MCL = 0x005B,     // ECG MCL (Modified chest lead)
-    ECG_ECG1 = 0x0001,    // ECG ECG1
-    ECG_ECG2 = 0x0002,    // ECG ECG2
+    ECG_ECG1 = 0xC001,    // ECG ECG1
+    ECG_ECG2 = 0xC002,    // ECG ECG2
     ECG_TRACE_1 = 0xC003, // ECG Trace 1
     ECG_TRACE_2 = 0xC004, // ECG Trace 2
 
@@ -392,7 +392,7 @@ public:
     using MFERData::MFERData;
     static const uint8_t tag = 0x0C;
     uint8_t getTag() const { return tag; }
-    float getSamplingResolution() const;
+    float getSamplingResolution(ByteOrder byteOrder) const;
 };
 
 // Map of Lead codes to their string representation

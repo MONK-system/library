@@ -1,6 +1,7 @@
 #include "NihonKohdenData.h"
 #include <iostream>
 #include <cstdint>
+#include <limits>
 #include <sstream>
 #include <algorithm>
 
@@ -289,7 +290,13 @@ std::vector<double> popChannelData(DataStack &waveformDataStack, uint64_t num, D
     switch (dataType)
     {
     case DataType::INT_16_S:
-        return waveformDataStack.pop_doubles<int16_t>(num, byteOrder);
+    {
+        auto values = waveformDataStack.pop_doubles<int16_t>(num, byteOrder);
+        for (auto &v : values)
+            if (v == -32768.0)
+                v = std::numeric_limits<double>::quiet_NaN();
+        return values;
+    }
     case DataType::INT_16_U:
         return waveformDataStack.pop_doubles<uint16_t>(num, byteOrder);
     case DataType::INT_32_S:

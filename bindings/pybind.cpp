@@ -43,8 +43,11 @@ PYBIND11_MODULE(monklib, m)
                                { return c.leadInfo.attribute; })
         .def_property_readonly("samplingResolution", [](const Channel &c)
                                { return c.leadInfo.samplingResolution; })
+        .def_property_readonly("samplingResolutionValue", [](const Channel &c)
+                               { return c.samplingResolution; })
         .def_readonly("samplingInterval", &Channel::samplingIntervalString)
-        .def_readonly("blockLength", &Channel::blockLength);
+        .def_readonly("blockLength", &Channel::blockLength)
+        .def_readonly("data", &Channel::data);
 
     py::class_<Header>(m, "Header")
         .def_readonly("preamble", &Header::preamble)
